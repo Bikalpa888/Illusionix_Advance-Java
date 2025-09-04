@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Illusionix - Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #000000, #000000, #000000);
+        overflow-x: hidden;
+        perspective: 1000px;
+        padding: 20px 0;
+    }
+
+    #particles-js {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        top: 0;
+        left: 0;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+        position: relative;
+        z-index: 10;
+        perspective: 1000px;
+    }
+
+    .form-box {
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4), inset 0 0 16px rgba(0, 212, 255, 0.2);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        transform-style: preserve-3d;
+        animation: formEntrance 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        opacity: 0;
+        transform: rotateX(20deg) translateY(100px);
+    }
+
+    @keyframes formEntrance {
+        0% {
+            opacity: 0;
+            transform: rotateX(20deg) translateY(100px);
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 1;
+            transform: rotateX(0deg) translateY(0);
+        }
+    }
+
+    h2 {
+        color: #00d4ff;
+        text-align: center;
+        margin-bottom: 10px;
+        font-family: 'Cinzel', serif;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        animation: glow 2s infinite alternate;
+        font-size: 24px;
+    }
+
+    @keyframes glow {
+        from {
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+        }
+        to {
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+    }
+
+    p {
+        color: rgba(0, 212, 255, 0.7);
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 10px;
+        transform: translateZ(10px);
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 12px 0;
+        font-size: 15px;
+        color: #00d4ff;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        outline: none;
+        transition: 0.3s;
+        z-index: 1;
+        position: relative;
+    }
+
+    .input-field:focus {
+        border-bottom-color: transparent;
+    }
+
+    .glow-line {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg,
+            transparent,
+            rgba(0, 212, 255, 0.5),
+            #00d4ff,
+            rgba(0, 212, 255, 0.5),
+            transparent);
+        transition: 0.3s;
+        z-index: 0;
+    }
+
+    .input-field:focus ~ .glow-line {
+        width: 100%;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.7);
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -100% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    .input-group label {
+        position: absolute;
+        top: 12px;
+        left: 0;
+        color: rgba(0, 212, 255, 0.7);
+        font-size: 15px;
+        pointer-events: none;
+        transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .input-field:focus ~ label,
+    .input-field:valid ~ label {
+        top: -12px;
+        font-size: 12px;
+        color: #00d4ff;
+        text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+        letter-spacing: 1px;
+    }
+
+    .password-strength {
+        margin-top: 5px;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .password-strength.show {
+        opacity: 1;
+    }
+
+    .strength-bar {
+        width: 100%;
+        height: 3px;
+        background: rgba(0, 212, 255, 0.2);
+        border-radius: 2px;
+        margin: 5px 0;
+        overflow: hidden;
+    }
+
+    .strength-fill {
+        height: 100%;
+        width: 0;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    .strength-weak .strength-fill {
+        width: 33%;
+        background: linear-gradient(90deg, #ff4757, #ff6b6b);
+    }
+
+    .strength-medium .strength-fill {
+        width: 66%;
+        background: linear-gradient(90deg, #ffa726, #ffb74d);
+    }
+
+    .strength-strong .strength-fill {
+        width: 100%;
+        background: linear-gradient(90deg, #00d4ff, #4ecdc4);
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    .strength-text {
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .terms-container {
+        display: flex;
+        align-items: flex-start;
+        margin: 20px 0 25px 0;
+        font-size: 13px;
+    }
+
+    .terms-container input[type="checkbox"] {
+        margin-right: 10px;
+        margin-top: 2px;
+        accent-color: #00d4ff;
+        transform: scale(1.2);
+    }
+
+    .terms-text {
+        color: rgba(0, 212, 255, 0.8);
+        line-height: 1.4;
+    }
+
+    .terms-text a {
+        color: #00d4ff;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .terms-text a:hover {
+        text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+    }
+
+    .register-btn {
+        width: 100%;
+        padding: 12px 0;
+        background: #000;
+        border: 1px solid #00d4ff;
+        border-radius: 25px;
+        color: #00d4ff;
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.5s;
+        position: relative;
+        overflow: hidden;
+        transform: translateZ(20px);
+    }
+
+    .register-btn:hover {
+        background: rgba(0, 212, 255, 0.1);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        transform: translateZ(30px) scale(1.02);
+    }
+
+    .register-btn:active {
+        transform: translateZ(10px) scale(0.98);
+    }
+
+    .btn-glow {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg,
+            transparent,
+            rgba(0, 212, 255, 0.2),
+            rgba(0, 212, 255, 0.4),
+            rgba(0, 212, 255, 0.2),
+            transparent);
+        transition: 0.6s;
+    }
+
+    .register-btn:hover .btn-glow {
+        left: 100%;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+        color: rgba(0, 212, 255, 0.8);
+    }
+
+    .login-link a {
+        color: #00d4ff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+
+    .login-link a:hover {
+        text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+    }
+
+    .error-message {
+        color: #ff4757;
+        font-size: 12px;
+        margin-top: 5px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .error-message.show {
+        opacity: 1;
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            max-width: 90%;
+            padding: 10px;
+        }
+
+        .form-box {
+            padding: 30px 25px;
+        }
+    }
+  </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<div class="container">
+  <div class="form-box">
+    <h2>Register</h2>
+    <p>Create Your Account</p>
+
+    <form id="registerForm" action="/signup" method="post">
+      <div class="input-group">
+        <input type="text" id="username" name="username" required class="input-field" minlength="3">
+        <label for="username">Username</label>
+        <div class="glow-line"></div>
+        <div class="error-message" id="usernameError">Username must be at least 3 characters long</div>
+      </div>
+
+      <div class="input-group">
+        <input type="email" id="email" name="email" required class="input-field">
+        <label for="email">Email Address</label>
+        <div class="glow-line"></div>
+        <div class="error-message" id="emailError">Please enter a valid email address</div>
+      </div>
+
+      <div class="input-group">
+        <input type="password" id="password" name="password" required class="input-field" minlength="8">
+        <label for="password">Password</label>
+        <div class="glow-line"></div>
+        <div class="password-strength" id="passwordStrength">
+          <div class="strength-bar">
+            <div class="strength-fill"></div>
+          </div>
+          <div class="strength-text"></div>
+        </div>
+        <div class="error-message" id="passwordError">Password must be at least 8 characters long</div>
+      </div>
+
+      <div class="input-group">
+        <input type="password" id="confirmPassword" name="confirmPassword" required class="input-field">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="glow-line"></div>
+        <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
+      </div>
+
+      <div class="terms-container">
+        <input type="checkbox" id="terms" name="terms" required>
+        <label for="terms" class="terms-text">
+          I agree to the <a href="#" onclick="return false;">Terms of Service</a> and
+          <a href="#" onclick="return false;">Privacy Policy</a>
+        </label>
+      </div>
+
+      <a href="homepage" style="text-decoration: none;">
+        <button type="button" class="register-btn">
+          <span>CREATE ACCOUNT</span>
+          <div class="btn-glow"></div>
+        </button>
+      </a>
+
+
+      <div class="login-link">
+        Already have an account? <a href="login">Sign In</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Initialize particles
+      particlesJS('particles-js', {
+          "particles": {
+              "number": {
+                  "value": 100,
+                  "density": {
+                      "enable": true,
+                      "value_area": 800
+                  }
+              },
+              "color": {
+                  "value": "#00d4ff"
+              },
+              "shape": {
+                  "type": "circle",
+                  "stroke": {
+                      "width": 0,
+                      "color": "#000000"
+                  },
+                  "polygon": {
+                      "nb_sides": 5
+                  }
+              },
+              "opacity": {
+                  "value": 0.8,
+                  "random": true,
+                  "anim": {
+                      "enable": true,
+                      "speed": 1,
+                      "opacity_min": 0.4,
+                      "sync": false
+                  }
+              },
+              "size": {
+                  "value": 5,
+                  "random": true,
+                  "anim": {
+                      "enable": true,
+                      "speed": 2,
+                      "size_min": 1,
+                      "sync": false
+                  }
+              },
+              "line_linked": {
+                  "enable": true,
+                  "distance": 150,
+                  "color": "#00d4ff",
+                  "opacity": 0.6,
+                  "width": 1.5
+              },
+              "move": {
+                  "enable": true,
+                  "speed": 2,
+                  "direction": "none",
+                  "random": true,
+                  "straight": false,
+                  "out_mode": "out",
+                  "bounce": false,
+                  "attract": {
+                      "enable": true,
+                      "rotateX": 600,
+                      "rotateY": 1200
+                  }
+              }
+          },
+          "interactivity": {
+              "detect_on": "canvas",
+              "events": {
+                  "onhover": {
+                      "enable": true,
+                      "mode": "repulse"
+                  },
+                  "onclick": {
+                      "enable": true,
+                      "mode": "push"
+                  },
+                  "resize": true
+              },
+              "modes": {
+                  "grab": {
+                      "distance": 400,
+                      "line_linked": {
+                          "opacity": 1
+                      }
+                  },
+                  "bubble": {
+                      "distance": 400,
+                      "size": 40,
+                      "duration": 2,
+                      "opacity": 8,
+                      "speed": 3
+                  },
+                  "repulse": {
+                      "distance": 100,
+                      "duration": 0.4
+                  },
+                  "push": {
+                      "particles_nb": 4
+                  },
+                  "remove": {
+                      "particles_nb": 2
+                  }
+              }
+          },
+          "retina_detect": true
+      });
+
+      // Form validation and interaction
+      const form = document.getElementById('registerForm');
+      const usernameInput = document.getElementById('username');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const termsCheckbox = document.getElementById('terms');
+
+      // Password strength checker
+      function checkPasswordStrength(password) {
+          const strengthIndicator = document.getElementById('passwordStrength');
+          const strengthBar = strengthIndicator.querySelector('.strength-bar');
+          const strengthText = strengthIndicator.querySelector('.strength-text');
+
+          if (password.length === 0) {
+              strengthIndicator.classList.remove('show');
+              return;
+          }
+
+          strengthIndicator.classList.add('show');
+
+          let score = 0;
+          let feedback = [];
+
+          // Length check
+          if (password.length >= 8) score += 1;
+          else feedback.push('8+ characters');
+
+          // Uppercase check
+          if (/[A-Z]/.test(password)) score += 1;
+          else feedback.push('uppercase letter');
+
+          // Lowercase check
+          if (/[a-z]/.test(password)) score += 1;
+          else feedback.push('lowercase letter');
+
+          // Number check
+          if (/\d/.test(password)) score += 1;
+          else feedback.push('number');
+
+          // Special character check
+          if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score += 1;
+          else feedback.push('special character');
+
+          // Update strength indicator
+          strengthBar.className = 'strength-bar';
+          if (score <= 2) {
+              strengthBar.classList.add('strength-weak');
+              strengthText.textContent = 'Weak - Add: ' + feedback.slice(0, 2).join(', ');
+              strengthText.style.color = '#ff4757';
+          } else if (score <= 3) {
+              strengthBar.classList.add('strength-medium');
+              strengthText.textContent = 'Medium - Add: ' + feedback.slice(0, 1).join(', ');
+              strengthText.style.color = '#ffa726';
+          } else {
+              strengthBar.classList.add('strength-strong');
+              strengthText.textContent = 'Strong password!';
+              strengthText.style.color = '#00d4ff';
+          }
+      }
+
+      // Real-time validation
+      usernameInput.addEventListener('input', function() {
+          const error = document.getElementById('usernameError');
+          if (this.value.length < 3 && this.value.length > 0) {
+              error.classList.add('show');
+          } else {
+              error.classList.remove('show');
+          }
+      });
+
+      emailInput.addEventListener('input', function() {
+          const error = document.getElementById('emailError');
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(this.value) && this.value.length > 0) {
+              error.classList.add('show');
+          } else {
+              error.classList.remove('show');
+          }
+      });
+
+      passwordInput.addEventListener('input', function() {
+          checkPasswordStrength(this.value);
+          const error = document.getElementById('passwordError');
+          if (this.value.length < 8 && this.value.length > 0) {
+              error.classList.add('show');
+          } else {
+              error.classList.remove('show');
+          }
+
+          // Also check confirm password if it has content
+          if (confirmPasswordInput.value) {
+              const confirmError = document.getElementById('confirmPasswordError');
+              if (this.value !== confirmPasswordInput.value) {
+                  confirmError.classList.add('show');
+              } else {
+                  confirmError.classList.remove('show');
+              }
+          }
+      });
+
+      confirmPasswordInput.addEventListener('input', function() {
+          const error = document.getElementById('confirmPasswordError');
+          if (this.value !== passwordInput.value && this.value.length > 0) {
+              error.classList.add('show');
+          } else {
+              error.classList.remove('show');
+          }
+      });
+
+      // Form submission (client-side validation only; submit to backend)
+      form.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          // Validate all fields
+          let isValid = true;
+
+          if (usernameInput.value.length < 3) {
+              document.getElementById('usernameError').classList.add('show');
+              isValid = false;
+          }
+
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(emailInput.value)) {
+              document.getElementById('emailError').classList.add('show');
+              isValid = false;
+          }
+
+          if (passwordInput.value.length < 8) {
+              document.getElementById('passwordError').classList.add('show');
+              isValid = false;
+          }
+
+          if (passwordInput.value !== confirmPasswordInput.value) {
+              document.getElementById('confirmPasswordError').classList.add('show');
+              isValid = false;
+          }
+
+          if (!termsCheckbox.checked) {
+              alert('Please accept the Terms of Service and Privacy Policy');
+              isValid = false;
+          }
+
+          if (isValid) {
+              const button = this.querySelector('.register-btn');
+              const label = button.querySelector('span');
+              label.textContent = 'SUBMITTING...';
+              button.disabled = true;
+              // Hand off to backend
+              this.submit();
+          }
+      });
+  });
+</script>
+</body>
+</html>

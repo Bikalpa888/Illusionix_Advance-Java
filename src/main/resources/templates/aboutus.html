@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us - Illusionix</title>
+    <meta name="description" content="Learn about Illusionix – our mission, team, and vision to bring immersive AR/VR shopping to everyone." />
+    <link rel="stylesheet" th:href="@{/main.css}" />
+
+    <script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fvrcommerc3603back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="bg-background text-text-primary">
+<!-- Live Chat Widget -->
+<div id="live-chat-widget" class="fixed bottom-4 right-4 z-50">
+    <button id="chat-toggle" class="bg-accent hover:bg-accent-600 text-white rounded-full p-4 shadow-lg transition-all duration-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="absolute bottom-16 right-0 w-80 h-96 bg-white rounded-lg shadow-xl border border-primary-200 transform scale-0 transition-transform duration-300 origin-bottom-right">
+        <div class="bg-accent text-white p-4 rounded-t-lg flex justify-between items-center">
+            <h3 class="font-semibold">Live Support</h3>
+            <button id="chat-close" class="text-white hover:text-accent-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div id="chat-messages" class="p-4 h-64 overflow-y-auto">
+            <div class="mb-3">
+                <div class="bg-primary-50 p-3 rounded-lg max-w-xs">
+                    <p class="text-sm">Hello! How can I help you today?</p>
+                    <span class="text-xs text-text-secondary">Support Agent • Online</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-primary-200">
+            <div class="flex space-x-2">
+                <input type="text" id="chat-input" placeholder="Type your message..." class="flex-1 input-field text-sm py-2" />
+                <button id="chat-send" class="btn-accent px-4 py-2 text-sm">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Header -->
+<header class="bg-surface/80 backdrop-blur-md border-b border-primary-200 sticky top-0 z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <svg class="w-10 h-10 text-secondary" viewBox="0 0 40 40" fill="currentColor">
+                    <path d="M20 4L36 12v16L20 36L4 28V12L20 4z"/>
+                    <circle cx="20" cy="20" r="8" fill="white"/>
+                    <circle cx="20" cy="20" r="4" fill="currentColor"/>
+                </svg>
+                <span class="ml-3 text-xl font-bold text-primary">Illusionix</span>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="homepage" class="text-text-secondary hover:text-secondary transition-colors">Home</a>
+                <a href="product_categories" class="text-text-secondary hover:text-secondary transition-colors">Products</a>
+                <a href="virtual_showroom" class="text-text-secondary hover:text-secondary transition-colors">Virtual Showroom</a>
+                <a href="user_dashboard" class="text-text-secondary hover:text-secondary transition-colors">Dashboard</a>
+                <a href="aboutus" class="text-secondary font-semibold">About</a>
+                <a href="contact" class="text-text-secondary hover:text-secondary transition-colors">Contact</a>
+
+                <!-- Search Bar -->
+                <div class="relative">
+                    <button id="search-toggle" class="text-text-secondary hover:text-secondary transition-colors p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </button>
+                    <div id="search-expanded" class="absolute right-0 top-full mt-2 transform scale-0 transition-transform duration-300 origin-top-right">
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Search products..." class="input-field pl-10 pr-4 py-2 w-64 bg-white shadow-lg border border-primary-200" />
+                            <svg class="w-5 h-5 text-text-secondary absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+
+                            <!-- Search Results Dropdown -->
+                            <div id="search-results" class="absolute top-full left-0 right-0 bg-white shadow-lg rounded-lg mt-2 border border-primary-200 hidden max-h-64 overflow-y-auto">
+                                <!-- Search results will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button class="theme-toggle text-text-secondary hover:text-secondary" aria-pressed="false" title="Switch theme">
+                        <svg data-icon="moon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 118.646 3.646 7 7 0 0020.354 15.354z"/></svg>
+                        <svg data-icon="sun" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                    </button>
+                    <a href="shopping_cart_checkout" class="relative text-text-secondary hover:text-secondary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                        </svg>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-accent text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <!-- Login and Signup Buttons -->
+                    <div class="flex items-center space-x-2 ml-4">
+                        <a href="login" class="btn-secondary text-sm px-4 py-2">Login</a>
+                        <a href="signup" class="btn-accent text-sm px-4 py-2">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-text-secondary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden py-4 border-t border-primary-200">
+            <div class="flex flex-col space-y-4">
+                <div class="relative mb-4">
+                    <input type="text" placeholder="Search products..." class="input-field pl-10 pr-4 py-2 w-full" />
+                    <svg class="w-5 h-5 text-text-secondary absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <a href="homepage" class="text-text-secondary">Home</a>
+                <a href="product_categories" class="text-text-secondary">Products</a>
+                <a href="virtual_showroom" class="text-text-secondary">Virtual Showroom</a>
+                <a href="user_dashboard" class="text-text-secondary">Dashboard</a>
+                <a href="aboutus" class="text-secondary font-semibold">About</a>
+                <a href="contact" class="text-text-secondary">Contact</a>
+
+                <!-- Mobile Login and Signup Buttons -->
+                <div class="flex flex-col space-y-2 pt-4 border-t border-primary-200">
+                    <a href="login" class="btn-secondary text-center">Login</a>
+                    <a href="signup" class="btn-accent text-center">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Hero -->
+<section class="relative py-20 bg-gradient-to-br from-primary-900 via-primary-800 to-secondary-900 text-white overflow-hidden">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-24 left-10 w-32 h-32 bg-accent rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-40 h-40 bg-secondary rounded-full blur-3xl animate-pulse delay-1000"></div>
+    </div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-5xl lg:text-6xl font-bold mb-6 leading-tight">Our Story, Mission & Vision</h1>
+                <p class="text-xl text-secondary-200 max-w-2xl">We are building the future of commerce by letting you experience products before you buy—through immersive AR/VR, 3D previews, and virtual demos.</p>
+            </div>
+            <div>
+                <div class="aspect-video rounded-3xl border border-white/20 bg-gradient-to-br from-surface/20 to-primary-800/20 backdrop-blur-sm p-6 flex items-center justify-center">
+                    <div class="text-center">
+                        <svg class="w-20 h-20 mx-auto text-accent mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <p class="text-primary-200">Watch: Illusionix in 60 seconds</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission, Vision, Values -->
+<section class="py-16 bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="card">
+                <h3 class="text-2xl font-bold text-primary mb-3">Mission</h3>
+                <p class="text-text-secondary">Empower people to make confident purchase decisions by experiencing products virtually—anytime, anywhere.</p>
+            </div>
+            <div class="card">
+                <h3 class="text-2xl font-bold text-primary mb-3">Vision</h3>
+                <p class="text-text-secondary">Become the world’s most trusted immersive-commerce platform, bridging imagination and reality for everyone.</p>
+            </div>
+            <div class="card">
+                <h3 class="text-2xl font-bold text-primary mb-3">Values</h3>
+                <ul class="space-y-2 text-text-secondary">
+                    <li>• Customer Obsession</li>
+                    <li>• Innovation & Craft</li>
+                    <li>• Inclusivity & Accessibility</li>
+                    <li>• Privacy & Trust</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Story -->
+<section class="py-20 bg-background">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-4xl font-bold text-primary mb-4">How Illusionix Began</h2>
+                <p class="text-text-secondary text-lg leading-relaxed mb-4">Founded by VR enthusiasts and retail veterans, Illusionix started with a simple question: What if you could try products from your couch? That question sparked a journey to blend advanced AR/VR with seamless shopping.</p>
+                <p class="text-text-secondary leading-relaxed">Today, we partner with leading brands and creators to deliver interactive, high-fidelity product experiences—so you can explore features, compare options, and buy with confidence.</p>
+            </div>
+            <div>
+                <div class="rounded-3xl overflow-hidden shadow-floating border border-primary-100">
+                    <img src="https://images.unsplash.com/photo-1580894908361-967195033215?q=80&w=2400&auto=format&fit=crop" alt="Team collaborating in VR" class="w-full h-full object-cover" onerror="this.src='https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=1600'; this.onerror=null;" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="py-16 bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-4 gap-8 text-center">
+            <div class="card"><div class="text-4xl font-bold text-secondary mb-2">50k+</div><p class="text-text-secondary">Immersive Demos Played</p></div>
+            <div class="card"><div class="text-4xl font-bold text-success mb-2">98%</div><p class="text-text-secondary">Customer Satisfaction</p></div>
+            <div class="card"><div class="text-4xl font-bold text-warning mb-2">120+</div><p class="text-text-secondary">Brand Partners</p></div>
+            <div class="card"><div class="text-4xl font-bold text-accent mb-2">24/7</div><p class="text-text-secondary">Expert Support</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- Team -->
+<section class="py-20 bg-background">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-primary mb-4">Meet the Team</h2>
+            <p class="text-text-secondary max-w-3xl mx-auto">A multi‑disciplinary crew of engineers, designers, and product thinkers building delightful shopping experiences.</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="card text-center">
+                <img class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400&auto=format&fit=crop" alt="Team Member" />
+                <h3 class="font-semibold text-primary">Aarav Sharma</h3>
+                <p class="text-text-secondary text-sm mb-2">Founder & CEO</p>
+                <p class="text-text-secondary text-sm">Product strategy, partnerships</p>
+            </div>
+            <div class="card text-center">
+                <img class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=400&auto=format&fit=crop" alt="Team Member" />
+                <h3 class="font-semibold text-primary">Maya Karki</h3>
+                <p class="text-text-secondary text-sm mb-2">Head of XR</p>
+                <p class="text-text-secondary text-sm">AR/VR platform & 3D pipelines</p>
+            </div>
+            <div class="card text-center">
+                <img class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=400&auto=format&fit=crop" alt="Team Member" />
+                <h3 class="font-semibold text-primary">Nabin Shrestha</h3>
+                <p class="text-text-secondary text-sm mb-2">Design Lead</p>
+                <p class="text-text-secondary text-sm">Interaction & visual systems</p>
+            </div>
+            <div class="card text-center">
+                <img class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" src="https://images.unsplash.com/photo-1541534401786-2077eed87a72?q=80&w=400&auto=format&fit=crop" alt="Team Member" />
+                <h3 class="font-semibold text-primary">Sujan Gurung</h3>
+                <p class="text-text-secondary text-sm mb-2">Engineering Manager</p>
+                <p class="text-text-secondary text-sm">Platform & performance</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Partners -->
+<section class="py-12 bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap justify-center items-center gap-8 opacity-60">
+            <div class="flex items-center space-x-2"><div class="w-8 h-8 bg-secondary rounded-full"></div><span class="text-text-secondary font-semibold">Meta</span></div>
+            <div class="flex items-center space-x-2"><div class="w-8 h-8 bg-accent rounded-full"></div><span class="text-text-secondary font-semibold">HTC</span></div>
+            <div class="flex items-center space-x-2"><div class="w-8 h-8 bg-success rounded-full"></div><span class="text-text-secondary font-semibold">Pico</span></div>
+            <div class="flex items-center space-x-2"><div class="w-8 h-8 bg-warning rounded-full"></div><span class="text-text-secondary font-semibold">Apple</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQs -->
+<section class="py-20 bg-background">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-primary mb-8 text-center">Frequently Asked Questions</h2>
+        <div class="space-y-4" id="faq-list">
+            <div class="card">
+                <button class="w-full flex justify-between items-center text-left" data-faq-toggle>
+                    <span class="text-lg font-semibold text-primary">How does the virtual demo work?</span>
+                    <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="mt-3 text-text-secondary hidden" data-faq-content>
+                    Our viewer lets you rotate, zoom, and interact with hotspots that reveal key features in 3D or AR.
+                </div>
+            </div>
+            <div class="card">
+                <button class="w-full flex justify-between items-center text-left" data-faq-toggle>
+                    <span class="text-lg font-semibold text-primary">Is Illusionix available on mobile?</span>
+                    <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="mt-3 text-text-secondary hidden" data-faq-content>
+                    Yes. Our experiences are responsive and support most modern mobile browsers and devices.
+                </div>
+            </div>
+            <div class="card">
+                <button class="w-full flex justify-between items-center text-left" data-faq-toggle>
+                    <span class="text-lg font-semibold text-primary">What about privacy and data?</span>
+                    <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="mt-3 text-text-secondary hidden" data-faq-content>
+                    We prioritize privacy by design. See our policies for details on analytics and consent.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-16 bg-gradient-to-br from-accent-900 to-secondary-900 text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl font-bold mb-4">Ready to Experience Before You Buy?</h2>
+        <p class="text-accent-200 mb-8">Jump into the virtual showroom or explore our curated categories.</p>
+        <div class="flex justify-center space-x-4">
+            <a href="virtual_showroom.html" class="btn-accent">Try Virtual Demo</a>
+            <a href="product_categories.html" class="btn-secondary">Browse Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer (reused) -->
+<footer class="bg-primary-900 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+            <div class="lg:col-span-2">
+                <div class="flex items-center mb-6">
+                    <svg class="w-8 h-8 text-accent" viewBox="0 0 40 40" fill="currentColor">
+                        <path d="M20 4L36 12v16L20 36L4 28V12L20 4z"/>
+                        <circle cx="20" cy="20" r="8" fill="white"/>
+                        <circle cx="20" cy="20" r="4" fill="currentColor"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold">Illusionix</span>
+                </div>
+                <p class="text-primary-300 mb-6">The future of shopping, today. Experience products before you buy with cutting-edge AR/VR technology.</p>
+                <div class="space-y-3">
+                    <div class="flex items-center"><svg class="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg><span class="text-primary-300">+977 (555) 123-4567</span></div>
+                    <div class="flex items-center"><svg class="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span class="text-primary-300">support@Illusionix.com</span></div>
+                    <div class="flex items-center"><svg class="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-primary-300">Kathmandu, Nepal</span></div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-6">Products</h3>
+                <ul class="space-y-3">
+                    <li><a href="product_categories" class="text-primary-300 hover:text-accent transition-colors">VR Headsets</a></li>
+                    <li><a href="product_categories" class="text-primary-300 hover:text-accent transition-colors">AR Glasses</a></li>
+                    <li><a href="product_categories" class="text-primary-300 hover:text-accent transition-colors">Accessories</a></li>
+                    <li><a href="product_categories" class="text-primary-300 hover:text-accent transition-colors">Enterprise Solutions</a></li>
+                    <li><a href="product_categories" class="text-primary-300 hover:text-accent transition-colors">Refurbished</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-6">Support</h3>
+                <ul class="space-y-3">
+                    <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Setup Guides</a></li>
+                    <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Troubleshooting</a></li>
+                    <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Warranty</a></li>
+                    <li><a href="contact.html" class="text-primary-300 hover:text-accent transition-colors">Contact Us</a></li>
+                    <li><a href="#" class="text-primary-300 hover:text-accent transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-6">Company</h3>
+                <ul class="space-y-3">
+                    <li><a href="aboutus" class="text-primary-300 hover:text-accent transition-colors">About Us</a></li>
+                    <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Careers</a></li>
+                    <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Press</a></li>
+                    <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Partners</a></li>
+                    <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Investor Relations</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t border-primary-700 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-primary-400 text-sm">© 2025 Illusionix. All Rights Reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="javascript:void(0)" class="text-primary-400 hover:text-accent text-sm transition-colors">Privacy Policy</a>
+                <a href="javascript:void(0)" class="text-primary-400 hover:text-accent text-sm transition-colors">Terms of Service</a>
+                <a href="javascript:void(0)" class="text-primary-400 hover:text-accent text-sm transition-colors">Cookie Policy</a>
+                <a href="javascript:void(0)" class="text-primary-400 hover:text-accent text-sm transition-colors">Accessibility</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Inline Theme Toggle (fallback)
+    (function(){
+        if(window.__themeInlineLoaded) return; window.__themeInlineLoaded=true;
+        const KEY='illusionix-theme', DARK='theme-dark';
+        function apply(t){ const r=document.documentElement; t==='dark'?r.classList.add(DARK):r.classList.remove(DARK);}
+        function get(){ try{return localStorage.getItem(KEY);}catch(_){return null} }
+        function set(t){ try{localStorage.setItem(KEY,t);}catch(_){} }
+        const init=get()||'light'; apply(init);
+        function cur(){ return document.documentElement.classList.contains(DARK)?'dark':'light'; }
+        function sync(t){
+            document.querySelectorAll('.theme-toggle [data-icon="sun"]').forEach(el=>el.style.display=t==='dark'?'inline-block':'none');
+            document.querySelectorAll('.theme-toggle [data-icon="moon"]').forEach(el=>el.style.display=t==='dark'?'none':'inline-block');
+            document.querySelectorAll('.theme-toggle').forEach(btn=>{btn.setAttribute('aria-pressed', t==='dark'?'true':'false');});
+        }
+        function toggle(){ const n=cur()==='dark'?'light':'dark'; apply(n); set(n); sync(n); }
+        function bind(){ document.querySelectorAll('.theme-toggle').forEach(b=>b.addEventListener('click',toggle)); sync(cur()); }
+        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
+    })();
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+        document.getElementById('mobile-menu')?.classList.toggle('hidden');
+    });
+
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchToggle = document.getElementById('search-toggle');
+        const searchExpanded = document.getElementById('search-expanded');
+        const searchInput = document.getElementById('search-input');
+
+        if (searchToggle && searchExpanded) {
+            searchToggle.addEventListener('click', function() {
+                const isExpanded = searchExpanded.classList.contains('scale-100');
+                if (isExpanded) {
+                    searchExpanded.classList.remove('scale-100');
+                    searchExpanded.classList.add('scale-0');
+                } else {
+                    searchExpanded.classList.remove('scale-0');
+                    searchExpanded.classList.add('scale-100');
+                    searchInput.focus();
+                }
+            });
+
+            // Close search when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!searchToggle.contains(event.target) && !searchExpanded.contains(event.target)) {
+                    searchExpanded.classList.remove('scale-100');
+                    searchExpanded.classList.add('scale-0');
+                }
+            });
+        }
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('[data-faq-toggle]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const content = this.parentElement.querySelector('[data-faq-content]');
+            content.classList.toggle('hidden');
+            this.querySelector('svg').classList.toggle('transform');
+            this.querySelector('svg').classList.toggle('rotate-180');
+        });
+    });
+
+    // Live Chat functionality
+    const chatToggle = document.getElementById('chat-toggle');
+    const chatWindow = document.getElementById('chat-window');
+    const chatClose = document.getElementById('chat-close');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    const chatMessages = document.getElementById('chat-messages');
+
+    function toggleChat() {
+        chatWindow.classList.toggle('scale-0');
+    }
+
+    chatToggle?.addEventListener('click', toggleChat);
+    chatClose?.addEventListener('click', toggleChat);
+
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (message) {
+            const userMsg = document.createElement('div');
+            userMsg.className = 'mb-3 flex justify-end';
+            userMsg.innerHTML = `
+                <div class="bg-accent text-white p-3 rounded-lg max-w-xs">
+                    <p class="text-sm">${message}</p>
+                </div>
+            `;
+            chatMessages.appendChild(userMsg);
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            setTimeout(() => {
+                const agentMsg = document.createElement('div');
+                agentMsg.className = 'mb-3';
+                agentMsg.innerHTML = `
+                    <div class="bg-primary-50 p-3 rounded-lg max-w-xs">
+                        <p class="text-sm">Thank you for your message! Our team will get back to you soon. How else can I help you today?</p>
+                        <span class="text-xs text-text-secondary">Support Agent • Online</span>
+                    </div>
+                `;
+                chatMessages.appendChild(agentMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1500);
+        }
+    }
+
+    chatSend?.addEventListener('click', sendMessage);
+    chatInput?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>
