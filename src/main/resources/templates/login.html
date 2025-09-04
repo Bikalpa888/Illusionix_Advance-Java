@@ -15,6 +15,7 @@
         <h2>Login</h2>
         <p>Welcome Back</p>
 
+        <p style="color:red"  th:text="${loginerror}"> </p>
         <form id="loginForm" action="/login" method="post">
             <div class="input-group">
                 <input type="text" id="emailOrUsername" name="emailOrUsername" required class="input-field">
@@ -36,8 +37,7 @@
                 <a href="#" class="forgot">Forgot Password?</a>
             </div>
 
-
-            <!-- Continue Shopping button styled like login -->
+            <!-- Continue Shopping stays a link -->
             <a href="homepage" class="login-btn" style="display:inline-block; text-align:center; margin-top:12px;">
                 <span>Continue Shopping</span>
                 <div class="btn-glow"></div>
@@ -47,6 +47,7 @@
                 Don't have an account? <a href="signup">Register</a>
             </div>
         </form>
+
     </div>
 </div>
 
