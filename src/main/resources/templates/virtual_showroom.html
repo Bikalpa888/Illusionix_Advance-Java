@@ -1317,6 +1317,18 @@
         });
     });
 </script>
+<script>
+  // Sync DB cart on add-to-cart
+  document.addEventListener('click', async function(e){
+    const btn = e.target.closest('[data-add-to-cart]');
+    if(!btn) return;
+    const sku = String(btn.getAttribute('data-id')||'');
+    const name = btn.getAttribute('data-name')||'';
+    const price = String(btn.getAttribute('data-price')||'');
+    const image = btn.getAttribute('data-image')||'';
+    try{ await fetch('/cart/add',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({sku,qty:'1',name,price,image})}); }catch(_){ }
+  });
+</script>
 <!-- Inline cart fallback to ensure dynamic add/count works even without external JS -->
 <script>
     (function(){

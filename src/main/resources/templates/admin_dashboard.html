@@ -372,29 +372,13 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr class="border-b border-primary-100">
-                                <td class="py-4 pr-4 font-semibold text-primary">VR-2025-1023</td>
-                                <td class="py-4 pr-4">Alex Doe</td>
-                                <td class="py-4 pr-4">Meta Quest 3</td>
-                                <td class="py-4 pr-4 font-semibold">$549</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success">Paid</span></td>
+                            <tr th:each="o : ${orders}" class="border-b border-primary-100">
+                                <td class="py-4 pr-4 font-semibold text-primary" th:text="${o.orderNumber}">VR-XXXX</td>
+                                <td class="py-4 pr-4" th:text="${o.userName}">Customer</td>
+                                <td class="py-4 pr-4" th:text="${#lists.isEmpty(o.items) ? '-' : o.items.get(0).name + (o.items.size() > 1 ? (' +' + (o.items.size()-1) + ' more') : '')}">Item</td>
+                                <td class="py-4 pr-4 font-semibold" th:text="${o.total}">$0.00</td>
+                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success" th:text="${o.status}">Placed</span></td>
                                 <td class="py-4"><button class="btn-secondary text-xs px-3 py-2">Manage</button></td>
-                            </tr>
-                            <tr class="border-b border-primary-100">
-                                <td class="py-4 pr-4 font-semibold text-primary">VR-2025-1022</td>
-                                <td class="py-4 pr-4">Jamie Lin</td>
-                                <td class="py-4 pr-4">VR Controller Pro</td>
-                                <td class="py-4 pr-4 font-semibold">$149</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-warning-50 text-warning">Pending</span></td>
-                                <td class="py-4"><button class="btn-secondary text-xs px-3 py-2">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td class="py-4 pr-4 font-semibold text-primary">VR-2025-1021</td>
-                                <td class="py-4 pr-4">Priya N.</td>
-                                <td class="py-4 pr-4">ISS Experience</td>
-                                <td class="py-4 pr-4 font-semibold">$49</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-error-100 text-error">Failed</span></td>
-                                <td class="py-4"><button class="btn-secondary text-xs px-3 py-2">Retry</button></td>
                             </tr>
                             </tbody>
 

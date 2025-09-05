@@ -450,6 +450,35 @@
           </div>
         </div>
 
+        <!-- My Orders Section -->
+        <div id="orders" class="card" th:if="${myOrders} != null">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-primary">My Orders</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="text-left text-text-secondary border-b border-primary-200">
+                  <th class="py-3 pr-4">Order #</th>
+                  <th class="py-3 pr-4">Date</th>
+                  <th class="py-3 pr-4">Items</th>
+                  <th class="py-3 pr-4">Total</th>
+                  <th class="py-3 pr-4">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="o : ${myOrders}" class="border-b border-primary-100">
+                  <td class="py-4 pr-4 font-semibold text-primary" th:text="${o.orderNumber}">VR-XXXX</td>
+                  <td class="py-4 pr-4" th:text="${#temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</td>
+                  <td class="py-4 pr-4" th:text="${#lists.size(o.items)}">0</td>
+                  <td class="py-4 pr-4 font-semibold" th:text="${o.total}">$0.00</td>
+                  <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success" th:text="${o.status}">Placed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- My Experiences Section -->
         <div id="experiences" class="card">
           <div class="flex justify-between items-center mb-6">

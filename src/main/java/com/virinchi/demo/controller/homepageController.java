@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import com.virinchi.demo.repository.ProductRepository;
 import com.virinchi.demo.model.Product;
 import com.virinchi.demo.repository.ContactMessageRepository;
+import com.virinchi.demo.repository.OrderRepository;
 import com.virinchi.demo.repository.NewsletterSubscriptionRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,15 +19,18 @@ public class homepageController {
 
     private final ProductRepository productRepository;
     private final ContactMessageRepository contactMessageRepository;
+    private final OrderRepository orderRepository;
     private final NewsletterSubscriptionRepository newsletterSubscriptionRepository;
     private static final Logger log = LoggerFactory.getLogger(homepageController.class);
 
     public homepageController(ProductRepository productRepository,
                               ContactMessageRepository contactMessageRepository,
-                              NewsletterSubscriptionRepository newsletterSubscriptionRepository) {
+                              NewsletterSubscriptionRepository newsletterSubscriptionRepository,
+                              OrderRepository orderRepository) {
         this.productRepository = productRepository;
         this.contactMessageRepository = contactMessageRepository;
         this.newsletterSubscriptionRepository = newsletterSubscriptionRepository;
+        this.orderRepository = orderRepository;
     }
 
     @GetMapping("/")
@@ -36,7 +40,16 @@ public class homepageController {
 
 
     @GetMapping("/user_dashboard")
-    private String dashboard() {
+    private String dashboard(HttpSession session, Model model) {
+        Object n = session.getAttribute("userName");
+        Object e = session.getAttribute("userEmail");
+        try {
+            if (e instanceof String && !((String)e).isBlank()) {
+                model.addAttribute("myOrders", orderRepository.findTop50ByUserEmailOrderByCreatedAtDesc((String) e));
+            } else if (n instanceof String && !((String)n).isBlank()) {
+                model.addAttribute("myOrders", orderRepository.findTop50ByUserNameOrderByCreatedAtDesc((String) n));
+            }
+        } catch (Exception ignored) {}
         return "user_dashboard";
     }
 
@@ -60,6 +73,7 @@ public class homepageController {
             return "redirect:/login?admin=required";
         }
         model.addAttribute("products", productRepository.findAll());
+        try { model.addAttribute("orders", orderRepository.findTop50ByOrderByCreatedAtDesc()); } catch (Exception ignored) {}
         try {
             model.addAttribute("messages", contactMessageRepository.findTop50ByOrderByCreatedAtDesc());
             model.addAttribute("subscribers", newsletterSubscriptionRepository.findTop50ByOrderByCreatedAtDesc());
@@ -113,10 +127,7 @@ public class homepageController {
     private String productDetail() {
         return "product_detail";
     }
-    @GetMapping("/shopping_cart_checkout")
-    private String checkoutPage() {
-        return "shopping_cart_checkout";
-    }
+    // Shopping cart page is handled in shoppingCartCheckoutController to include server cart data
     @GetMapping("/signup" )
     private String signup() {
         return "signup";

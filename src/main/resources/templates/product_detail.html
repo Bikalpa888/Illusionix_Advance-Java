@@ -189,7 +189,7 @@
           get(){return read();},clear(){write({items:[]});updateBadges();}
         };
       }
-      document.addEventListener('click',function(e){const btn=e.target.closest('[data-add-to-cart]');if(!btn)return;Cart.add({id:btn.getAttribute('data-id'),name:btn.getAttribute('data-name'),price:Number(btn.getAttribute('data-price')||0),image:btn.getAttribute('data-image')||'',qty:1});btn.classList.add('ring-2','ring-accent');setTimeout(()=>btn.classList.remove('ring-2','ring-accent'),400);});
+      document.addEventListener('click',async function(e){const btn=e.target.closest('[data-add-to-cart]');if(!btn)return;const payload={id:btn.getAttribute('data-id'),name:btn.getAttribute('data-name'),price:Number(btn.getAttribute('data-price')||0),image:btn.getAttribute('data-image')||'',qty:1};Cart.add(payload);try{await fetch('/cart/add',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({sku:String(payload.id||''),qty:String(payload.qty||1),name:payload.name||'',price:String(payload.price||0),image:payload.image||''})});}catch(_){}btn.classList.add('ring-2','ring-accent');setTimeout(()=>btn.classList.remove('ring-2','ring-accent'),400);});
       if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',updateBadges);}else{updateBadges();}
     })();
 </script>
