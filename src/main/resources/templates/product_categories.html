@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -197,6 +197,7 @@
       if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',updateBadges);}else{updateBadges();}
     })();
 </script>
+-->
 
 <!-- Main Content Area -->
 <section class="py-8">
@@ -380,7 +381,7 @@
                 </div>
 
                 <!-- Product Grid -->
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <div id="productGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     <!-- Product Card 1 -->
                     <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail.html'">
                         <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
@@ -779,6 +780,39 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Admin-added products (server-rendered) -->
+                    <div th:if="${productViews} != null" th:each="p : ${productViews}" class="card group cursor-pointer hover:scale-105 transition-all duration-300">
+                        <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
+                            <img th:if="${p.image} != null" th:src="${p.image}" alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2017/05/13/12/40/fashion-2309519_1280.jpg'; this.onerror=null;" />
+                            <img th:if="${p.image} == null" src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=1080&auto=format&fit=crop" alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2017/05/13/12/40/fashion-2309519_1280.jpg'; this.onerror=null;" />
+                            <div class="absolute bottom-4 left-4 bg-white/90 text-primary px-2 py-1 rounded-full text-xs font-semibold flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                360° View
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-accent font-semibold" th:text="${p.sku}">SKU</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-primary" th:text="${p.name}">Product</h3>
+                            <p class="text-text-secondary text-sm line-clamp-2" th:text="${p.description}">Description</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xl font-bold text-primary" th:text="${p.price != null ? '$' + #numbers.formatDecimal(p.price, 1, 2) : '$0.00'}">$0.00</span>
+                                </div>
+                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 btn-primary text-sm py-2" th:attr="data-add-to-cart='true', data-id=${p.sku}, data-name=${p.name}, data-price=${p.price}">Add to Cart</button>
+                                <button class="px-3 py-2 border border-primary-200 rounded-lg text-text-secondary hover:bg-surface transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${productViews} == null or #lists.isEmpty(productViews)" class="col-span-full text-center text-text-secondary py-12">
+                        No products available yet.
+                    </div>
                 </div>
 
                 <!-- Load More Button -->
@@ -794,6 +828,68 @@
         </div>
     </div>
 </section>
+
+<!-- Dynamic Products Loader (disabled; server-side rendering below)
+<script>
+    (function(){
+        function toCurrency(n){const x=Number(n||0);return `$${x.toFixed(2)}`}
+        function firstImage(arr){return Array.isArray(arr)&&arr.length?arr[0]:''}
+        function loadLocalAdmin(){
+            try{const raw=localStorage.getItem('adminProducts');const arr=JSON.parse(raw||'[]');return Array.isArray(arr)?arr:[]}catch(_){return []}
+        }
+        async function loadBackend(){
+            try{const res=await fetch('/api/products',{headers:{'Accept':'application/json'}});if(!res.ok) return [];return await res.json();}catch(_){return []}
+        }
+        function cardHtml(p){
+            const img=firstImage(p.images);
+            const safePrice=Number(p.price||0);
+            return `
+            <div class="card group cursor-pointer hover:scale-105 transition-all duration-300">
+                <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
+                    <img src="${img||'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=1080&auto=format&fit=crop'}" alt="${p.name||'Product'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2017/05/13/12/40/fashion-2309519_1280.jpg'; this.onerror=null;" />
+                    <div class="absolute bottom-4 left-4 bg-white/90 text-primary px-2 py-1 rounded-full text-xs font-semibold flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        360° View
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-accent font-semibold">${(p.sku||'SKU').toString()}</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-primary">${(p.name||'Product').toString()}</h3>
+                    <p class="text-text-secondary text-sm line-clamp-2">${(p.description||'').toString()}</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-bold text-primary">${toCurrency(safePrice)}</span>
+                        </div>
+                        <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 btn-primary text-sm py-2" data-add-to-cart data-id="${(p.sku||p.id||'').toString()}" data-name="${(p.name||'Product').toString()}" data-price="${safePrice}" data-image="${img}">Add to Cart</button>
+                        <button class="px-3 py-2 border border-primary-200 rounded-lg text-text-secondary hover:bg-surface transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }
+        async function init(){
+            const grid=document.getElementById('productGrid');
+            if(!grid) return;
+            const localItems=loadLocalAdmin();
+            const backendItems=await loadBackend();
+            const combined=[...backendItems, ...localItems];
+            const seen=new Set();
+            const dedup=combined.filter(p=>{const k=(p.sku||p.id||Math.random()).toString();if(seen.has(k)) return false; seen.add(k); return true;});
+            if(dedup.length){
+                const frag=document.createElement('div');
+                frag.innerHTML=dedup.map(cardHtml).join('');
+                while(frag.firstChild){grid.appendChild(frag.firstChild)}
+            }
+        }
+        if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+    })();
+</script>
 
 <!-- Comparison Sticky Bar -->
 <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-primary-200 shadow-floating z-40 transform translate-y-full transition-transform duration-300" id="comparisonBar">

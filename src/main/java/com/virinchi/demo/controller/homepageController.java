@@ -1,11 +1,22 @@
 package com.virinchi.demo.controller;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.ui.Model;
+import com.virinchi.demo.repository.ProductRepository;
+import com.virinchi.demo.model.Product;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class homepageController {
+
+    private final ProductRepository productRepository;
+
+    public homepageController(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @GetMapping("/")
     private String homepage() {
@@ -32,7 +43,12 @@ public class homepageController {
         return "aboutus";
     }
     @GetMapping("/admin_dashboard" )
-    private String adminDashboard() {
+    private String adminDashboard(HttpSession session, Model model) {
+        Object isAdmin = session.getAttribute("isAdmin");
+        if (!(isAdmin instanceof Boolean) || !((Boolean) isAdmin)) {
+            return "redirect:/login?admin=required";
+        }
+        model.addAttribute("products", productRepository.findAll());
         return "admin_dashboard";
     }
     @GetMapping("/contact")
@@ -48,7 +64,29 @@ public class homepageController {
         return "login";
     }
     @GetMapping("/product_categories")
-    private String productCategories() {
+    private String productCategories(Model model) {
+        var all = productRepository.findAll();
+        var views = new java.util.ArrayList<java.util.Map<String,Object>>();
+        var om = new ObjectMapper();
+        for (Product p : all) {
+            var m = new java.util.LinkedHashMap<String,Object>();
+            m.put("sku", p.getSku());
+            m.put("name", p.getName());
+            m.put("description", p.getDescription());
+            m.put("price", p.getPrice());
+            // parse first image if JSON array present
+            String first = null;
+            String json = p.getImagesJson();
+            if (json != null && !json.isBlank()) {
+                try {
+                    java.util.List<String> imgs = om.readValue(json, new TypeReference<java.util.List<String>>(){});
+                    if (imgs != null && !imgs.isEmpty()) first = imgs.get(0);
+                } catch (Exception ignored) {}
+            }
+            m.put("image", first);
+            views.add(m);
+        }
+        model.addAttribute("productViews", views);
         return "product_categories";
     }
     @GetMapping("/product_detail")

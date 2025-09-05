@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <a href="shopping_cart_checkout.html" class="relative text-text-secondary hover:text-secondary">
+                    <a href="shopping_cart_checkout" class="relative text-text-secondary hover:text-secondary">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
                         </svg>
@@ -340,6 +340,17 @@
                                 <td class="py-4"><button class="btn-secondary text-xs px-3 py-2">Retry</button></td>
                             </tr>
                             </tbody>
+                            <!-- DB-backed products -->
+                            <tbody th:if="${products} != null">
+                            <tr th:each="p : ${products}" class="border-b border-primary-100">
+                                <td class="py-4 pr-4 font-semibold" th:text="${p.sku}">SKU</td>
+                                <td class="py-4 pr-4"><span th:text="${p.name}">Name</span></td>
+                                <td class="py-4 pr-4" th:text="${p.price}">$0.00</td>
+                                <td class="py-4 pr-4" th:text="${p.inventory}">0</td>
+                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-primary-100 text-primary" th:text="${p.status}">Status</span></td>
+                                <td class="py-4"><div class="flex gap-2"><!-- actions --></div></td>
+                            </tr>
+                            </tbody>
                         </table>
                     </div>
                 </section>
@@ -349,8 +360,8 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-primary">Products</h2>
                         <div class="flex gap-2">
-                            <button class="btn-secondary text-sm">New Product</button>
-                            <button class="btn-accent text-sm">Bulk Upload</button>
+                            <button id="new-product-btn" class="btn-secondary text-sm" onclick="var m=document.getElementById('add-product-modal');m.classList.remove('hidden');m.classList.add('flex');">New Product</button>
+                            <button id="bulk-upload-btn" class="btn-accent text-sm">Bulk Upload</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -394,6 +405,63 @@
                         </table>
                     </div>
                 </section>
+
+                <!-- Add Product Modal -->
+                <div id="add-product-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+                    <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4">
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-primary-200">
+                            <h3 class="text-xl font-semibold text-primary">Add New Product</h3>
+                            <button type="button" id="close-add-product" class="text-text-secondary hover:text-error" aria-label="Close" onclick="var m=document.getElementById('add-product-modal');m.classList.add('hidden');m.classList.remove('flex');">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <form id="add-product-form" class="px-6 py-5 space-y-5" autocomplete="off" method="post" action="/admin/products" enctype="multipart/form-data">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1" for="ap-sku">SKU</label>
+                                    <input id="ap-sku" name="sku" type="text" required class="input-field w-full" placeholder="e.g. MQ3-128" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1" for="ap-name">Name</label>
+                                    <input id="ap-name" name="name" type="text" required class="input-field w-full" placeholder="Product name" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1" for="ap-price">Price (USD)</label>
+                                    <input id="ap-price" name="price" type="number" step="0.01" min="0" required class="input-field w-full" placeholder="0.00" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1" for="ap-inventory">Inventory</label>
+                                    <input id="ap-inventory" name="inventory" type="number" step="1" min="0" required class="input-field w-full" placeholder="0" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1" for="ap-status">Status</label>
+                                    <select id="ap-status" name="status" class="input-field w-full">
+                                        <option value="Active" selected>Active</option>
+                                        <option value="Draft">Draft</option>
+                                        <option value="Low Stock">Low Stock</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary mb-1" for="ap-description">Description</label>
+                                <textarea id="ap-description" name="description" rows="4" class="input-field w-full" placeholder="Describe the product features, materials, compatibility, etc."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary mb-2" for="ap-images">Images</label>
+                                <input id="ap-images" name="images" type="file" accept="image/*" multiple class="block w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-secondary file:text-white hover:file:bg-blue-700" />
+                                <p class="text-xs text-text-secondary mt-1">You can upload up to 6 images. First image is used as thumbnail.</p>
+                                <div id="ap-image-previews" class="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-2"></div>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-3 pt-2 border-t border-primary-200">
+                                <button type="button" id="cancel-add-product" class="btn-secondary bg-primary-100 text-primary hover:bg-primary-200" onclick="var m=document.getElementById('add-product-modal');m.classList.add('hidden');m.classList.remove('flex');">Cancel</button>
+                                <button type="submit" class="btn-accent">Save Product</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <!-- Users -->
                 <section id="users" class="card">
@@ -600,7 +668,7 @@
                     <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Setup Guides</a></li>
                     <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Troubleshooting</a></li>
                     <li><a href="javascript:void(0)" class="text-primary-300 hover:text-accent transition-colors">Warranty</a></li>
-                    <li><a href="contact" class="text-primary-300 hover:text-accent transition-colors">Contact Us</a></li>
+                    <li><a href="contactl" class="text-primary-300 hover:text-accent transition-colors">Contact Us</a></li>
                 </ul>
             </div>
 
@@ -657,6 +725,220 @@
                 }
             });
         }
+    });
+</script>
+<script>
+    // Admin: Add Product modal + storage + rendering
+    document.addEventListener('DOMContentLoaded', () => {
+        // JS disabled: server-side Java handles product persistence and rendering
+        return;
+        const modal = document.getElementById('add-product-modal');
+        const openBtn = document.getElementById('new-product-btn');
+        const closeBtn = document.getElementById('close-add-product');
+        const cancelBtn = document.getElementById('cancel-add-product');
+        const form = document.getElementById('add-product-form');
+        const imagesInput = document.getElementById('ap-images');
+        const previewWrap = document.getElementById('ap-image-previews');
+        const productsTableBody = document.querySelector('#products table tbody');
+
+        if (!modal || !openBtn || !closeBtn || !cancelBtn || !form || !imagesInput || !previewWrap || !productsTableBody) return;
+
+        const storageKey = 'adminProducts';
+        let selectedBase64Images = [];
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        function resetForm() {
+            form.reset();
+            previewWrap.innerHTML = '';
+            selectedBase64Images = [];
+        }
+
+        function loadProducts() {
+            try {
+                const raw = localStorage.getItem(storageKey);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch {
+                return [];
+            }
+        }
+        function saveProducts(list) {
+            localStorage.setItem(storageKey, JSON.stringify(list));
+        }
+
+        function pill(status) {
+            const map = {
+                'Active': 'bg-success-100 text-success',
+                'Low Stock': 'bg-warning-50 text-warning',
+                'Draft': 'bg-primary-100 text-primary',
+            };
+            return `<span class="px-2 py-1 rounded-full text-xs ${map[status] || 'bg-primary-100 text-primary'}">${status}</span>`;
+        }
+
+        function fmtPrice(n) {
+            const num = Number(n || 0);
+            return `$${num.toFixed(2)}`;
+        }
+
+        function renderAddedProducts() {
+            // Remove previously rendered dynamic rows
+            productsTableBody.querySelectorAll('tr[data-added]')?.forEach(tr => tr.remove());
+            const items = loadProducts();
+            items.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-primary-100';
+                tr.setAttribute('data-added', '1');
+                const thumb = (p.images && p.images[0]) ? `<img src="${p.images[0]}" alt="thumb" class="w-8 h-8 rounded object-cover">` : '';
+                tr.innerHTML = `
+                    <td class="py-4 pr-4 font-semibold">${p.sku || ''}</td>
+                    <td class="py-4 pr-4">
+                        <div class="flex items-center gap-2">${thumb}<span>${p.name || ''}</span></div>
+                    </td>
+                    <td class="py-4 pr-4">${fmtPrice(p.price)}</td>
+                    <td class="py-4 pr-4">${p.inventory ?? ''}</td>
+                    <td class="py-4 pr-4">${pill(p.status || 'Active')}</td>
+                    <td class="py-4">
+                        <div class="flex gap-2">
+                            <button class="btn-secondary text-xs px-3 py-2" data-action="view">View</button>
+                        </div>
+                    </td>`;
+                // Attach simple view dialog for description + gallery
+                tr.querySelector('[data-action="view"]').addEventListener('click', () => showViewDialog(p));
+                productsTableBody.appendChild(tr);
+            });
+        }
+
+        function showViewDialog(p) {
+            // lightweight viewer overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            overlay.innerHTML = `
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-primary-200">
+                        <h3 class="text-xl font-semibold text-primary">${p.name || 'Product'}</h3>
+                        <button class="text-text-secondary hover:text-error" aria-label="Close">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="px-6 py-5 space-y-4">
+                        <div class="text-sm text-text-secondary"><span class="font-semibold text-primary">SKU:</span> ${p.sku || '-'}</div>
+                        <div class="text-sm text-text-secondary"><span class="font-semibold text-primary">Price:</span> ${fmtPrice(p.price)}</div>
+                        <div class="text-sm text-text-secondary"><span class="font-semibold text-primary">Inventory:</span> ${p.inventory ?? '-'}</div>
+                        <div>
+                            <h4 class="font-semibold text-primary mb-1">Description</h4>
+                            <p class="text-sm text-text-secondary whitespace-pre-line">${(p.description || '').toString()}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-primary mb-2">Images</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                ${(p.images || []).map(src => `<img src="${src}" class="w-full h-24 object-cover rounded" alt="product image">`).join('') || '<p class="text-sm text-text-secondary">No images</p>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            const close = () => overlay.remove();
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+            overlay.querySelector('button')?.addEventListener('click', close);
+            document.body.appendChild(overlay);
+        }
+
+        function previewFiles(files) {
+            previewWrap.innerHTML = '';
+            selectedBase64Images = [];
+            const max = 6;
+            const slice = Array.from(files || []).slice(0, max);
+            if (slice.length === 0) return;
+            let remaining = slice.length;
+            slice.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const url = e.target?.result;
+                    if (typeof url === 'string') {
+                        selectedBase64Images.push(url);
+                        const item = document.createElement('div');
+                        item.className = 'relative';
+                        item.innerHTML = `<img src="${url}" class="w-full h-20 object-cover rounded" alt="preview">`;
+                        previewWrap.appendChild(item);
+                    }
+                    remaining -= 1;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        imagesInput.addEventListener('change', (e) => {
+            previewFiles(e.target.files);
+        });
+
+        openBtn.addEventListener('click', () => {
+            resetForm();
+            openModal();
+        });
+        closeBtn.addEventListener('click', () => { closeModal(); });
+        cancelBtn.addEventListener('click', () => { closeModal(); });
+        // close modal on backdrop click
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sku = (document.getElementById('ap-sku').value || '').trim();
+            const name = (document.getElementById('ap-name').value || '').trim();
+            const price = parseFloat(document.getElementById('ap-price').value || '0');
+            const inventory = parseInt(document.getElementById('ap-inventory').value || '0', 10);
+            const status = document.getElementById('ap-status').value || 'Active';
+            const description = document.getElementById('ap-description').value || '';
+
+            if (!sku || !name) {
+                alert('Please provide both SKU and Name.');
+                return;
+            }
+
+            // If user submitted without triggering change, convert files now
+            if (selectedBase64Images.length === 0 && imagesInput.files?.length) {
+                await new Promise((resolve) => {
+                    let count = 0;
+                    const max = Math.min(imagesInput.files.length, 6);
+                    for (let i = 0; i < max; i++) {
+                        const fr = new FileReader();
+                        fr.onload = (evt) => {
+                            if (typeof evt.target.result === 'string') {
+                                selectedBase64Images.push(evt.target.result);
+                            }
+                            count++; if (count === max) resolve();
+                        };
+                        fr.readAsDataURL(imagesInput.files[i]);
+                    }
+                    if (max === 0) resolve();
+                });
+            }
+
+            const newItem = { sku, name, price: isNaN(price) ? 0 : price, inventory: isNaN(inventory) ? 0 : inventory, status, description, images: selectedBase64Images.slice(0, 6) };
+            const current = loadProducts();
+            current.push(newItem);
+            saveProducts(current);
+            // Best-effort persist to backend (no design change if it fails)
+            try {
+                fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(newItem)
+                }).catch(()=>{});
+            } catch(_){ /* ignore */ }
+            renderAddedProducts();
+            closeModal();
+            resetForm();
+        });
+
+        // Initial render
+        renderAddedProducts();
     });
 </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
