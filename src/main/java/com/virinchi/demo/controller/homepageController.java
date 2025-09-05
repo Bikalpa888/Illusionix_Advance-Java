@@ -1,5 +1,6 @@
 package com.virinchi.demo.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -19,7 +20,10 @@ public class homepageController {
 
 
     @GetMapping("/homepage")
-    private String home() {
+    public String homepage(HttpSession session) {
+        if (session.getAttribute("activeUser") == null) {
+            return "redirect:/login?auth=required";
+        }
         return "homepage";
     }
 

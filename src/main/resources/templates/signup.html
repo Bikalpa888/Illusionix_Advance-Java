@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -344,6 +344,7 @@
     <h2>Register</h2>
     <p>Create Your Account</p>
 
+    <p style="color:red"  th:text="${loginerror}"> </p>
     <form id="registerForm" action="/signup" method="post">
       <div class="input-group">
         <input type="text" id="username" name="username" required class="input-field" minlength="3">
