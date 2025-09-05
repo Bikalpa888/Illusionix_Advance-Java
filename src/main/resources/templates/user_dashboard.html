@@ -152,7 +152,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
       <div>
-        <h1 class="text-4xl font-bold mb-2">Welcome back, <span data-user-name>Explorer</span>!</h1>
+        <h1 class="text-4xl font-bold mb-2">Welcome back, <span data-user-name th:text="${loggedIn} ? ${currentUserName} : 'Explorer'">Explorer</span>!</h1>
         <p class="text-primary-200 text-lg">Your VR/AR journey continues</p>
       </div>
       <div class="mt-6 md:mt-0 flex items-center space-x-4">

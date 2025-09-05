@@ -103,9 +103,13 @@
           </a>
 
           <!-- Login and Signup Buttons -->
-          <div class="flex items-center space-x-2 ml-4">
+          <div class="flex items-center space-x-2 ml-4" th:if="${!loggedIn}">
             <a href="login" class="btn-secondary text-sm px-4 py-2">Login</a>
             <a href="signup" class="btn-accent text-sm px-4 py-2">Sign Up</a>
+          </div>
+          <div class="flex items-center space-x-2 ml-4" th:if="${loggedIn}">
+            <span class="text-sm text-text-secondary">Hi, <span class="text-primary font-semibold" th:text="${currentUserName}">User</span></span>
+            <a href="logout" class="btn-secondary text-sm px-4 py-2">Logout</a>
           </div>
         </div>
       </div>
@@ -136,8 +140,14 @@
 
         <!-- Mobile Login and Signup Buttons -->
         <div class="flex flex-col space-y-2 pt-4 border-t border-primary-200">
-          <a href="login" class="btn-secondary text-center">Login</a>
-          <a href="signup" class="btn-accent text-center">Sign Up</a>
+          <div th:if="${!loggedIn}">
+            <a href="login" class="btn-secondary text-center">Login</a>
+            <a href="signup" class="btn-accent text-center">Sign Up</a>
+          </div>
+          <div th:if="${loggedIn}">
+            <div class="text-sm text-text-secondary">Signed in as <span class="text-primary font-semibold" th:text="${currentUserName}">User</span></div>
+            <a href="logout" class="btn-secondary text-center">Logout</a>
+          </div>
         </div>
       </div>
     </div>

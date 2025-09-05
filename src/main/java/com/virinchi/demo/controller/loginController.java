@@ -29,6 +29,8 @@ public class loginController {
                 session.setAttribute("isAdmin", true);
                 session.setAttribute("adminEmail", ADMIN_EMAIL);
                 session.setAttribute("activeUser", "ADMIN");
+                session.setAttribute("userName", "ADMIN");
+                session.setAttribute("userEmail", ADMIN_EMAIL);
                 session.setMaxInactiveInterval(30 * 60); // 30 minutes for admin
                 return "redirect:/admin_dashboard";
             } else {
@@ -42,7 +44,16 @@ public class loginController {
         boolean ok = signupRepo.existsByUsernameAndPassword(usernameOrEmail, hashPassword);
 
         if (ok) {
+            // Fetch full user to capture email/name into session
+            signupModel user = null;
+            try { user = signupRepo.findByUsername(usernameOrEmail); } catch (Exception ignored) {}
             session.setAttribute("activeUser", usernameOrEmail);
+            if (user != null) {
+                session.setAttribute("userName", user.getUsername());
+                session.setAttribute("userEmail", user.getEmail());
+            } else {
+                session.setAttribute("userName", usernameOrEmail);
+            }
             session.setMaxInactiveInterval(20 * 60); // 20 minutes
             return "redirect:/homepage";
         }
