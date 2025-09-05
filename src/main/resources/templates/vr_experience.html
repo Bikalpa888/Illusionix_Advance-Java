@@ -42,17 +42,21 @@
 <!-- VR Section -->
 <section class="py-4">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="bg-surface border border-primary-200 rounded-2xl p-4">
+    <div class="bg-surface border border-primary-200 rounded-2xl p-4" id="vrx-wrap">
       <div class="mb-3 flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold">Immersive VR Showroom</h1>
           <p class="text-sm text-text-secondary">Click the Enter VR button (if supported) to step inside.</p>
         </div>
-        <a href="ar_tryon" class="btn-secondary">Try AR Instead</a>
+        <div class="flex items-center gap-2">
+          <button id="vrx-enter-vr" class="bg-accent text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-accent-600 transition-colors">Enter VR</button>
+          <button id="vrx-fullscreen" class="px-4 py-2 rounded-lg text-sm font-semibold border border-primary-200 hover:bg-surface transition-colors">Full Screen</button>
+          <a href="ar_tryon" class="btn-secondary">Try AR Instead</a>
+        </div>
       </div>
       <div class="rounded-xl overflow-hidden" style="height: 70vh; min-height: 420px;">
         <!-- Simple A-Frame scene -->
-        <a-scene renderer="colorManagement: true;" embedded>
+        <a-scene id="vrx-scene" renderer="colorManagement: true;" embedded>
           <a-assets>
             <img id="sky" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
             <a-asset-item id="astronaut" src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" crossorigin="anonymous"></a-asset-item>
@@ -77,6 +81,25 @@
   // Inline theme fallback (auth removed)
   (function(){
     if(!window.__themeInlineLoaded){window.__themeInlineLoaded=true;const K='illusionix-theme',D='theme-dark';function a(t){const r=document.documentElement; t==='dark'?r.classList.add(D):r.classList.remove(D)}function g(){try{return localStorage.getItem(K)}catch(_){return null}}function s(t){try{localStorage.setItem(K,t)}catch(_){}}const i=g()||'light';a(i);function c(){return document.documentElement.classList.contains(D)?'dark':'light'}function u(t){document.querySelectorAll('.theme-toggle [data-icon="sun"]').forEach(e=>e.style.display=t==='dark'?'inline-block':'none');document.querySelectorAll('.theme-toggle [data-icon="moon"]').forEach(e=>e.style.display=t==='dark'?'none':'inline-block');document.querySelectorAll('.theme-toggle').forEach(b=>{b.setAttribute('aria-pressed',t==='dark'?'true':'false');b.setAttribute('title',t==='dark'?'Switch to light mode':'Switch to dark mode')})}function t(){const n=c()==='dark'?'light':'dark';a(n);s(n);u(n)}function b(){document.querySelectorAll('.theme-toggle').forEach(x=>x.addEventListener('click',t));u(c())}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',b);else b();}
+  })();
+  // VRX controls
+  (function(){
+    function fsToggle(){
+      if(document.fullscreenElement){ document.exitFullscreen?.(); return; }
+      const wrap = document.getElementById('vrx-wrap');
+      wrap?.requestFullscreen?.();
+    }
+    function bind(){
+      document.getElementById('vrx-fullscreen')?.addEventListener('click', fsToggle);
+      const scene = document.getElementById('vrx-scene');
+      document.getElementById('vrx-enter-vr')?.addEventListener('click', function(){
+        if(scene && typeof scene.enterVR === 'function') scene.enterVR();
+        else fsToggle();
+      });
+      // Double click scene to toggle fullscreen
+      document.getElementById('vrx-scene')?.addEventListener('dblclick', fsToggle);
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind); else bind();
   })();
 </script>
 </body>

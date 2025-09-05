@@ -212,7 +212,7 @@
                         <p class="text-sm text-text-secondary">Scale 1:1 • 3D/AR</p>
                     </div>
                     <div class="flex gap-2">
-                        <button class="btn-accent">AR</button>
+                        <button class="btn-accent" data-activate-ar>AR</button>
                         <button class="btn-secondary" data-add-to-cart data-id="astro-1" data-name="Astronaut Model" data-price="49">Add</button>
                     </div>
                 </div>
@@ -231,7 +231,7 @@
                         <p class="text-sm text-text-secondary">Home preview • 3D/AR</p>
                     </div>
                     <div class="flex gap-2">
-                        <button class="btn-accent">AR</button>
+                        <button class="btn-accent" data-activate-ar>AR</button>
                         <button class="btn-secondary" data-add-to-cart data-id="sheenchair-1" data-name="Sheen Lounge Chair" data-price="199">Add</button>
                     </div>
                 </div>
@@ -244,7 +244,7 @@
                         <p class="text-sm text-text-secondary">Animated • 3D/AR</p>
                     </div>
                     <div class="flex gap-2">
-                        <button class="btn-accent">AR</button>
+                        <button class="btn-accent" data-activate-ar>AR</button>
                         <button class="btn-secondary" data-add-to-cart data-id="robot-1" data-name="Expressive Robot" data-price="129">Add</button>
                     </div>
                 </div>
@@ -261,9 +261,9 @@
             <h2 class="text-3xl font-bold text-primary">Step Into VR</h2>
             <p class="text-text-secondary">Enter VR on supported browsers/headsets</p>
         </div>
-        <div class="bg-surface border border-primary-200 rounded-2xl p-4">
+        <div class="bg-surface border border-primary-200 rounded-2xl p-4" id="vr-preview-wrap">
             <div class="rounded-xl overflow-hidden" style="height: 60vh; min-height: 360px;">
-                <a-scene renderer="colorManagement: true;" embedded>
+                <a-scene id="vr-preview-scene" renderer="colorManagement: true;" embedded>
                     <a-assets>
                         <img id="sky" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
                         <a-asset-item id="astronaut" src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" crossorigin="anonymous"></a-asset-item>
@@ -438,11 +438,14 @@
                                 </button>
                                 <span class="text-white text-sm">360° View Active</span>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="bg-accent text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-accent-600 transition-colors">
-                                    Enter VR Mode
-                                </button>
-                            </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="btn-enter-vr" class="bg-accent text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-accent-600 transition-colors">
+                                Enter VR Mode
+                            </button>
+                            <button id="btn-fullscreen" class="px-4 py-2 rounded-lg text-sm font-semibold border border-primary-200 hover:bg-surface transition-colors">
+                                Full Screen
+                            </button>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -1243,8 +1246,8 @@
 
     // Virtual Tour Functions
     function startVirtualTour() {
-        console.log('Starting virtual tour...');
-        // Add virtual tour initialization logic
+        // Navigate to dedicated VR experience page
+        window.location.href = 'vr_experience';
     }
 
     function startGuidedTour() {
@@ -1284,6 +1287,26 @@
     // Initialize theme toggle when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
         initializeThemeToggle();
+        // VR controls
+        const scene = document.getElementById('vr-preview-scene');
+        const wrap = document.getElementById('vr-preview-wrap');
+        document.getElementById('btn-enter-vr')?.addEventListener('click', function(){
+            if(scene && typeof scene.enterVR === 'function') { scene.enterVR(); }
+            else if(wrap && wrap.requestFullscreen) { wrap.requestFullscreen(); }
+        });
+        document.getElementById('btn-fullscreen')?.addEventListener('click', function(){
+            if(document.fullscreenElement){ document.exitFullscreen?.(); return; }
+            if(wrap && wrap.requestFullscreen) wrap.requestFullscreen();
+        });
+        // AR buttons -> trigger model-viewer activateAR
+        document.addEventListener('click', function(e){
+            const btn = e.target.closest('[data-activate-ar]');
+            if(!btn) return;
+            const card = btn.closest('.border');
+            const mv = card?.querySelector('model-viewer');
+            if(mv && typeof mv.activateAR === 'function') mv.activateAR();
+            else window.location.href = 'ar_tryon';
+        });
     });
 </script>
 <!-- Inline cart fallback to ensure dynamic add/count works even without external JS -->

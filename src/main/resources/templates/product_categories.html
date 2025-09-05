@@ -4,7 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Illusionix</title>
+    <script>
+        // Theme preloader to prevent flash and ensure icon correctness
+        (function(){
+            try {
+                var t = localStorage.getItem('illusionix-theme') || 'light';
+                var r = document.documentElement;
+                if(t === 'dark') r.classList.add('theme-dark'); else r.classList.remove('theme-dark');
+            } catch(_) {}
+        })();
+    </script>
     <link rel="stylesheet" th:href="@{/main.css}" />
+    <style>
+        /* Ensure only one theme icon is visible before JS runs */
+        .theme-toggle [data-icon="sun"] { display: none; }
+        .theme-toggle [data-icon="moon"] { display: inline-block; }
+        .theme-dark .theme-toggle [data-icon="sun"] { display: inline-block; }
+        .theme-dark .theme-toggle [data-icon="moon"] { display: none; }
+    </style>
 
     <meta name="description" content="Browse our comprehensive collection of VR headsets, AR glasses, and immersive technology accessories with advanced filtering and AR preview" />
     <script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fvrcommerc3603back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
@@ -383,7 +400,7 @@
                 <!-- Product Grid -->
                 <div id="productGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     <!-- Product Card 1 -->
-                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail.html'">
+                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail'">
                         <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Meta Quest 3" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2017/05/13/12/40/fashion-2309519_1280.jpg'; this.onerror=null;" />
                             <div class="absolute top-4 left-4 bg-accent text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -433,7 +450,7 @@
                                     <span class="text-xl font-bold text-primary">$499</span>
                                     <span class="text-sm text-text-secondary line-through">$599</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
                                     Try in AR
                                 </button>
                             </div>
@@ -450,7 +467,7 @@
                     </div>
 
                     <!-- Product Card 2 -->
-                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail.html'">
+                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail'">
                         <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
                             <img src="https://images.pexels.com/photos/3761264/pexels-photo-3761264.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Apple Vision Pro" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
                             <div class="absolute top-4 left-4 bg-secondary text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -499,7 +516,7 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xl font-bold text-primary">$3,499</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
                                     Try in AR
                                 </button>
                             </div>
@@ -516,7 +533,7 @@
                     </div>
 
                     <!-- Product Card 3 -->
-                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail.html'">
+                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail'">
                         <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
                             <img src="https://images.pixabay.com/photo/2021/08/04/13/06/software-developer-6521720_1280.jpg" alt="HTC Vive Pro 2" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=2926&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
                             <div class="absolute top-4 left-4 bg-success text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -566,7 +583,7 @@
                                     <span class="text-xl font-bold text-primary">$799</span>
                                     <span class="text-sm text-text-secondary line-through">$899</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
                                     Try in AR
                                 </button>
                             </div>
@@ -583,7 +600,7 @@
                     </div>
 
                     <!-- Product Card 4 -->
-                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail.html'">
+                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail'">
                         <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="PICO 4 Enterprise" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2017/05/13/12/40/fashion-2309519_1280.jpg'; this.onerror=null;" />
                             <div class="absolute top-4 left-4 bg-warning text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -632,7 +649,7 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xl font-bold text-primary">$649</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
                                     Try in AR
                                 </button>
                             </div>
@@ -649,7 +666,7 @@
                     </div>
 
                     <!-- Product Card 5 -->
-                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail.html'">
+                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail'">
                         <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
                             <img src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="VR Controller Set" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=2926&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
                             <div class="absolute top-4 left-4 bg-accent text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -699,7 +716,7 @@
                                     <span class="text-xl font-bold text-primary">$149</span>
                                     <span class="text-sm text-text-secondary line-through">$199</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
                                     Try in AR
                                 </button>
                             </div>
@@ -716,7 +733,7 @@
                     </div>
 
                     <!-- Product Card 6 -->
-                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail.html'">
+                    <div class="card group cursor-pointer hover:scale-105 transition-all duration-300" onclick="window.location.href='product_detail'">
                         <div class="aspect-square bg-primary-50 rounded-xl mb-6 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="AR Smart Glasses" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2021/08/04/13/06/software-developer-6521720_1280.jpg'; this.onerror=null;" />
                             <div class="absolute top-4 left-4 bg-secondary text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -765,7 +782,7 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xl font-bold text-primary">$599</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">
                                     Try in AR
                                 </button>
                             </div>
@@ -800,7 +817,7 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xl font-bold text-primary" th:text="${p.price != null ? '$' + #numbers.formatDecimal(p.price, 1, 2) : '$0.00'}">$0.00</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
                             </div>
                             <div class="flex space-x-2">
                                 <button class="flex-1 btn-primary text-sm py-2" th:attr="data-add-to-cart='true', data-id=${p.sku}, data-name=${p.name}, data-price=${p.price}">Add to Cart</button>
@@ -830,7 +847,7 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xl font-bold text-primary" th:text="${p.price != null ? '$' + #numbers.formatDecimal(p.price, 1, 2) : '$0.00'}">$0.00</span>
                                 </div>
-                                <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
+                                <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
                             </div>
                             <div class="flex space-x-2">
                                 <button class="flex-1 btn-primary text-sm py-2" th:attr="data-add-to-cart='true', data-id=${p.sku}, data-name=${p.name}, data-price=${p.price}">Add to Cart</button>
@@ -893,7 +910,7 @@
                         <div class="flex items-center space-x-2">
                             <span class="text-xl font-bold text-primary">${toCurrency(safePrice)}</span>
                         </div>
-                        <button class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
+                        <button data-try-ar class="bg-accent-100 text-accent px-3 py-1 rounded-full text-sm font-medium hover:bg-accent hover:text-white transition-colors">Try in AR</button>
                     </div>
                     <div class="flex space-x-2">
                         <button class="flex-1 btn-primary text-sm py-2" data-add-to-cart data-id="${(p.sku||p.id||'').toString()}" data-name="${(p.name||'Product').toString()}" data-price="${safePrice}" data-image="${img}">Add to Cart</button>
@@ -935,7 +952,7 @@
             </div>
             <div class="flex items-center space-x-4">
                 <button class="text-text-secondary hover:text-primary text-sm" onclick="clearComparison()">Clear All</button>
-                <button class="btn-accent px-6 py-2" onclick="window.location.href='product_detail.html'">
+                <button class="btn-accent px-6 py-2" onclick="window.location.href='product_detail'">
                     Compare Now
                 </button>
             </div>
@@ -1325,6 +1342,15 @@
         }
     }
 </script>
+<script>
+  // Link "Try in AR" buttons to AR Try-On page
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-try-ar]');
+    if(!btn) return;
+    window.location.href = 'ar_tryon';
+  });
+</script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+    <script th:src="@{/js/theme.js}"></script>
 </body>
 </html>
