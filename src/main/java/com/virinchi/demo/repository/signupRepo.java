@@ -9,5 +9,7 @@ public interface signupRepo  extends JpaRepository<signupModel, Integer> {
 
     boolean	existsByUsernameAndPassword(String username,String password);
     signupModel findByUsername(String username);
+    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
 
 }

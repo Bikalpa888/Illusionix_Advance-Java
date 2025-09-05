@@ -1,6 +1,7 @@
 package com.virinchi.demo.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -12,6 +13,13 @@ public class signupModel {
     private String username;
     private String email;
     private String password;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+    }
 
 
     public int getId() {
@@ -45,6 +53,10 @@ public class signupModel {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
 
 
 }
