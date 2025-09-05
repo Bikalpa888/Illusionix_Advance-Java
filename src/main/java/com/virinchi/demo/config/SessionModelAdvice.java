@@ -1,5 +1,6 @@
 package com.virinchi.demo.config;
 
+import com.virinchi.demo.repository.SiteSettingsRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -8,6 +9,12 @@ import org.springframework.ui.Model;
 
 @ControllerAdvice(annotations = Controller.class)
 public class SessionModelAdvice {
+
+    private final SiteSettingsRepository siteSettingsRepository;
+
+    public SessionModelAdvice(SiteSettingsRepository siteSettingsRepository) {
+        this.siteSettingsRepository = siteSettingsRepository;
+    }
 
     @ModelAttribute
     public void addGlobalUserAttributes(Model model, HttpSession session) {
@@ -34,6 +41,19 @@ public class SessionModelAdvice {
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("currentUserName", name);
         model.addAttribute("currentUserEmail", email);
+
+        // Branding
+        String logoUrl = "/images/logo.png"; // default bundled asset
+        String logoDarkUrl = logoUrl;
+        try {
+            var all = siteSettingsRepository.findAll();
+            if (!all.isEmpty()) {
+                var s = all.get(0);
+                if (s.getLogoUrl() != null && !s.getLogoUrl().isBlank()) logoUrl = s.getLogoUrl();
+                if (s.getLogoDarkUrl() != null && !s.getLogoDarkUrl().isBlank()) logoDarkUrl = s.getLogoDarkUrl();
+            }
+        } catch (Exception ignored) {}
+        model.addAttribute("brandLogoUrl", logoUrl);
+        model.addAttribute("brandLogoDarkUrl", logoDarkUrl);
     }
 }
-

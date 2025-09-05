@@ -2781,6 +2781,14 @@ a.btn-primary:focus { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.25)
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+/* Brand logo micro-interaction and dark variant */
+img.brand-logo { transition: transform .2s ease, filter .2s ease; image-rendering: -webkit-optimize-contrast; }
+img.brand-logo:hover { transform: translateY(-1px) scale(1.03); }
+.theme-dark img.brand-logo { filter: brightness(1.15) saturate(1.05); }
+
+/* Prevent stray horizontal scroll on pages with wide effects */
+body { overflow-x: hidden; }
+
 /* Dark theme overrides */
 .theme-dark body {
   --tw-bg-opacity: 1;
