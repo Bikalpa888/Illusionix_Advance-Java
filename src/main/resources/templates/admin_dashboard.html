@@ -344,11 +344,23 @@
                             <tbody th:if="${products} != null">
                             <tr th:each="p : ${products}" class="border-b border-primary-100">
                                 <td class="py-4 pr-4 font-semibold" th:text="${p.sku}">SKU</td>
-                                <td class="py-4 pr-4"><span th:text="${p.name}">Name</span></td>
+                                <td class="py-4 pr-4">
+                                    <div class="flex items-center gap-2">
+                                        <img th:if="${@imageHelper.firstImage(p.imagesJson)}" th:src="${@imageHelper.firstImage(p.imagesJson)}" alt="thumb" class="w-8 h-8 rounded object-cover" />
+                                        <span th:text="${p.name}">Name</span>
+                                    </div>
+                                </td>
                                 <td class="py-4 pr-4" th:text="${p.price}">$0.00</td>
                                 <td class="py-4 pr-4" th:text="${p.inventory}">0</td>
                                 <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-primary-100 text-primary" th:text="${p.status}">Status</span></td>
-                                <td class="py-4"><div class="flex gap-2"><!-- actions --></div></td>
+                                <td class="py-4">
+                                    <div class="flex gap-2">
+                                        <form th:action="@{/admin/products/delete}" method="post" onsubmit="return confirm('Delete this product?');">
+                                            <input type="hidden" name="sku" th:value="${p.sku}" />
+                                            <button type="submit" class="btn-secondary text-xs px-3 py-2">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -377,29 +389,52 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr class="border-b border-primary-100">
-                                <td class="py-4 pr-4 font-semibold">MQ3-128</td>
-                                <td class="py-4 pr-4">Meta Quest 3 - 128GB</td>
-                                <td class="py-4 pr-4">$549</td>
-                                <td class="py-4 pr-4">42</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success">Active</span></td>
+                                <tr class="border-b border-primary-100">
+                                    <td class="py-4 pr-4 font-semibold">MQ3-128</td>
+                                    <td class="py-4 pr-4">Meta Quest 3 - 128GB</td>
+                                    <td class="py-4 pr-4">$549</td>
+                                    <td class="py-4 pr-4">42</td>
+                                    <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success">Active</span></td>
                                 <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Edit</button><button class="btn-accent text-xs px-3 py-2">Feature</button></div></td>
-                            </tr>
-                            <tr class="border-b border-primary-100">
-                                <td class="py-4 pr-4 font-semibold">VRC-SET</td>
-                                <td class="py-4 pr-4">VR Controller Pro</td>
-                                <td class="py-4 pr-4">$149</td>
-                                <td class="py-4 pr-4">120</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-warning-50 text-warning">Low Stock</span></td>
-                                <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Edit</button><button class="btn-accent text-xs px-3 py-2">Restock</button></div></td>
-                            </tr>
-                            <tr>
-                                <td class="py-4 pr-4 font-semibold">EX-ISS</td>
-                                <td class="py-4 pr-4">ISS VR Experience</td>
-                                <td class="py-4 pr-4">$49</td>
-                                <td class="py-4 pr-4">∞</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success">Active</span></td>
-                                <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Edit</button><button class="btn-accent text-xs px-3 py-2">Promote</button></div></td>
+                                </tr>
+                                <tr class="border-b border-primary-100">
+                                    <td class="py-4 pr-4 font-semibold">VRC-SET</td>
+                                    <td class="py-4 pr-4">VR Controller Pro</td>
+                                    <td class="py-4 pr-4">$149</td>
+                                    <td class="py-4 pr-4">120</td>
+                                    <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-warning-50 text-warning">Low Stock</span></td>
+                                    <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Edit</button><button class="btn-accent text-xs px-3 py-2">Restock</button></div></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 pr-4 font-semibold">EX-ISS</td>
+                                    <td class="py-4 pr-4">ISS VR Experience</td>
+                                    <td class="py-4 pr-4">$49</td>
+                                    <td class="py-4 pr-4">∞</td>
+                                    <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success">Active</span></td>
+                                    <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Edit</button><button class="btn-accent text-xs px-3 py-2">Promote</button></div></td>
+                                </tr>
+                            </tbody>
+                            <!-- Dynamic DB-backed products under the same table -->
+                            <tbody th:if="${products} != null">
+                            <tr th:each="p : ${products}" class="border-b border-primary-100">
+                                <td class="py-4 pr-4 font-semibold" th:text="${p.sku}">SKU</td>
+                                <td class="py-4 pr-4">
+                                    <div class="flex items-center gap-2">
+                                        <img th:if="${@imageHelper.firstImage(p.imagesJson)}" th:src="${@imageHelper.firstImage(p.imagesJson)}" alt="thumb" class="w-8 h-8 rounded object-cover" />
+                                        <span th:text="${p.name}">Name</span>
+                                    </div>
+                                </td>
+                                <td class="py-4 pr-4" th:text="${p.price}">$0.00</td>
+                                <td class="py-4 pr-4" th:text="${p.inventory}">0</td>
+                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-primary-100 text-primary" th:text="${p.status}">Status</span></td>
+                                <td class="py-4">
+                                    <div class="flex gap-2">
+                                        <form th:action="@{/admin/products/delete}" method="post" onsubmit="return confirm('Delete this product?');">
+                                            <input type="hidden" name="sku" th:value="${p.sku}" />
+                                            <button type="submit" class="btn-secondary text-xs px-3 py-2">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                             </tbody>
                         </table>

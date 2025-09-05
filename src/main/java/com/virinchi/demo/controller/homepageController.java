@@ -7,12 +7,15 @@ import com.virinchi.demo.model.Product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class homepageController {
 
     private final ProductRepository productRepository;
+    private static final Logger log = LoggerFactory.getLogger(homepageController.class);
 
     public homepageController(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -64,8 +67,13 @@ public class homepageController {
         return "login";
     }
     @GetMapping("/product_categories")
-    private String productCategories(Model model) {
+    public String productCategories(Model model) {
         var all = productRepository.findAll();
+        try {
+            log.info("/product_categories -> loaded {} products", all.size());
+        } catch (Exception ignored) {}
+        // Always include raw list as well for template compatibility
+        model.addAttribute("products", all);
         var views = new java.util.ArrayList<java.util.Map<String,Object>>();
         var om = new ObjectMapper();
         for (Product p : all) {

@@ -431,7 +431,7 @@
 
             <div class="space-y-4 mb-6">
               <div class="flex justify-between">
-                <span class="text-text-secondary">Subtotal (3 items)</span>
+                <span class="text-text-secondary" id="subtotal-label">Subtotal (0 items)</span>
                 <span class="text-primary" id="subtotal">$727.00</span>
               </div>
               <div class="flex justify-between">
@@ -1106,26 +1106,85 @@
       }
   });
 
-  // Initialize cart and pricing
-  let cartData = {
-      items: [
-          { id: 'quest3', name: 'Meta Quest 3', price: 499, quantity: 1, originalPrice: 549 },
-          { id: 'controllers', name: 'VR Controller Set', price: 149, quantity: 1 },
-          { id: 'case', name: 'VR Protective Case', price: 79, quantity: 1 }
-      ],
-      services: [],
-      discounts: [],
-      delivery: { type: 'standard', cost: 0 }
-  };
+  // Initialize cart and pricing (hydrate from localStorage)
+  const LS_KEY = 'illusionix_cart';
+  let cartData = { items: [], services: [], discounts: [], delivery: { type: 'standard', cost: 0 } };
+
+  function readCartFromStorage(){
+      try { const raw = localStorage.getItem(LS_KEY); return raw ? JSON.parse(raw) : {items:[]}; } catch(_) { return {items:[]}; }
+  }
+  function writeCartToStorage(){
+      try {
+          const payload = { items: cartData.items.map(i=>({id: i.id, name: i.name, price: i.price, image: i.image || '', qty: i.quantity})) };
+          localStorage.setItem(LS_KEY, JSON.stringify(payload));
+      } catch(_) {}
+  }
+  function cartCount(){ return cartData.items.reduce((s,i)=>s + (Number(i.quantity)||0), 0); }
+  function updateCartBadge(){ document.querySelectorAll('#cart-count,[data-cart-count]').forEach(el=> el.textContent = String(cartCount())); }
+
+  function cartItemCard(item){
+      const total = (Number(item.price||0) * Number(item.quantity||0)).toFixed(2);
+      const img = item.image || 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=1080&auto=format&fit=crop';
+      return `
+      <div class="card" data-product-id="${item.id}">
+        <div class="flex flex-col md:flex-row gap-6">
+          <div class="relative w-full md:w-32 h-32 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-xl overflow-hidden">
+            <img src="${img}" alt="${item.name}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2017/05/13/12/40/fashion-2309519_1280.jpg'; this.onerror=null;" />
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="text-lg font-semibold text-primary mb-1">${item.name}</h3>
+                <div class="flex items-center space-x-4 text-sm">
+                  <span class="text-success font-medium">✓ In Stock</span>
+                  <span class="text-text-secondary">SKU: ${item.id}</span>
+                </div>
+              </div>
+              <button class="remove-item text-text-secondary hover:text-error transition-colors" data-product-id="${item.id}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="text-sm text-text-secondary">Qty:</span>
+                <div class="flex items-center border border-primary-200 rounded-lg">
+                  <button class="quantity-btn px-3 py-1 text-text-secondary hover:text-primary" data-action="decrease" data-product-id="${item.id}">-</button>
+                  <span class="quantity-display px-3 py-1 border-x border-primary-200">${item.quantity}</span>
+                  <button class="quantity-btn px-3 py-1 text-text-secondary hover:text-primary" data-action="increase" data-product-id="${item.id}">+</button>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-lg font-bold text-primary item-total">$${total}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderCartItems(){
+      const container = document.getElementById('cart-items');
+      if (!container) return;
+      if (!cartData.items.length){
+          container.innerHTML = '<div class="text-center py-12"><p class="text-text-secondary text-lg">Your cart is empty</p></div>';
+      } else {
+          container.innerHTML = cartData.items.map(cartItemCard).join('');
+      }
+      initializeCart();
+      initializeQuantityControls();
+  }
 
   // Initialize page
   document.addEventListener('DOMContentLoaded', function() {
-      initializeCart();
+      // Hydrate from localStorage -> in-memory cart -> DOM
+      const stored = readCartFromStorage();
+      cartData.items = (stored.items||[]).map(it=>({ id: String(it.id), name: it.name, price: Number(it.price||0), quantity: Number(it.qty||it.quantity||1), image: it.image||'' }));
+      renderCartItems();
       initializePaymentModal();
-      initializeQuantityControls();
       initializeServices();
       initializePromoCode();
       updateCartTotals();
+      updateCartBadge();
   });
 
   // Initialize cart functionality
@@ -1185,7 +1244,9 @@
       quantityDisplay.textContent = item.quantity;
       itemTotal.textContent = `$${(item.price * item.quantity).toFixed(2)}`;
 
+      writeCartToStorage();
       updateCartTotals();
+      updateCartBadge();
       showNotification(`Quantity updated for ${item.name}`, 'info');
   }
 
@@ -1194,8 +1255,11 @@
       const itemIndex = cartData.items.findIndex(item => item.id === productId);
       if (itemIndex > -1) {
           const removedItem = cartData.items.splice(itemIndex, 1)[0];
-          document.querySelector(`[data-product-id="${productId}"]`).remove();
+          document.querySelector(`[data-product-id="${productId}"]`)?.remove();
+          writeCartToStorage();
+          renderCartItems();
           updateCartTotals();
+          updateCartBadge();
           showNotification(`${removedItem.name} removed from cart`, 'info');
       }
   }
@@ -1208,7 +1272,10 @@
           price: product.price,
           quantity: 1
       });
+      writeCartToStorage();
+      renderCartItems();
       updateCartTotals();
+      updateCartBadge();
       showNotification(`${product.name} added to cart!`, 'success');
   }
 
@@ -1217,8 +1284,10 @@
       cartData.items = [];
       cartData.services = [];
       cartData.discounts = [];
-      document.getElementById('cart-items').innerHTML = '<div class="text-center py-12"><p class="text-text-secondary text-lg">Your cart is empty</p></div>';
+      writeCartToStorage();
+      renderCartItems();
       updateCartTotals();
+      updateCartBadge();
       showNotification('Cart cleared', 'info');
   }
 
@@ -1280,6 +1349,7 @@
   // Update cart totals
   function updateCartTotals() {
       let subtotal = cartData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const itemsCount = cartCount();
       let servicesTotal = cartData.services.reduce((sum, service) => sum + service.price, 0);
 
       let discountAmount = 0;
@@ -1296,6 +1366,7 @@
 
       // Update display
       document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+      const label = document.getElementById('subtotal-label'); if (label) label.textContent = `Subtotal (${itemsCount} item${itemsCount===1?'':'s'})`;
       document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
       document.getElementById('discount').textContent = discountAmount > 0 ? `-$${discountAmount.toFixed(2)}` : '$0.00';
       document.getElementById('total').textContent = `$${total.toFixed(2)}`;

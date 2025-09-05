@@ -86,5 +86,33 @@ public class AdminProductController {
         productRepository.save(p);
         return "redirect:/admin_dashboard?added";
     }
-}
 
+    @PostMapping("/products/delete")
+    @org.springframework.transaction.annotation.Transactional
+    public String deleteProduct(@RequestParam(value = "sku", required = false) String sku,
+                                @RequestParam(value = "id", required = false) Long id,
+                                HttpSession session) {
+        Object isAdmin = session.getAttribute("isAdmin");
+        if (!(isAdmin instanceof Boolean) || !((Boolean) isAdmin)) {
+            return "redirect:/login?admin=required";
+        }
+        try {
+            if (sku != null && !sku.trim().isEmpty()) {
+                return productRepository.findBySku(sku.trim())
+                        .map(p -> { productRepository.delete(p); return "redirect:/admin_dashboard?deleted=" + sku; })
+                        .orElse("redirect:/admin_dashboard?notfound");
+            }
+            if (id != null) {
+                if (productRepository.existsById(id)) {
+                    productRepository.deleteById(id);
+                    return "redirect:/admin_dashboard?deletedId=" + id;
+                } else {
+                    return "redirect:/admin_dashboard?notfound";
+                }
+            }
+            return "redirect:/admin_dashboard?notfound";
+        } catch (Exception e) {
+            return "redirect:/admin_dashboard?error=delete";
+        }
+    }
+}
