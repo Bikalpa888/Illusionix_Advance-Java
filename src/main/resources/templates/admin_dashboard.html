@@ -268,6 +268,63 @@
                     </div>
                 </section>
 
+                <!-- Contact Messages -->
+                <section id="contact_messages" class="card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-primary">Contact Messages</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                            <tr class="text-left text-text-secondary border-b border-primary-200">
+                                <th class="py-3 pr-4">Received</th>
+                                <th class="py-3 pr-4">Name</th>
+                                <th class="py-3 pr-4">Email</th>
+                                <th class="py-3 pr-4">Subject</th>
+                                <th class="py-3 pr-4">Message</th>
+                            </tr>
+                            </thead>
+                            <tbody th:if="${messages} != null">
+                            <tr th:each="m : ${messages}" class="border-b border-primary-100">
+                                <td class="py-3 pr-4" th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</td>
+                                <td class="py-3 pr-4" th:text="${m.firstName + ' ' + m.lastName}">John Doe</td>
+                                <td class="py-3 pr-4" th:text="${m.email}">john@example.com</td>
+                                <td class="py-3 pr-4" th:text="${m.subject}">Subject</td>
+                                <td class="py-3 pr-4"><span class="line-clamp-2" th:text="${m.message}">Message text</span></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(messages)}">
+                                <td class="py-6 text-center text-text-secondary" colspan="5">No messages yet.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Newsletter Subscribers -->
+                <section id="newsletter" class="card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-primary">Newsletter Subscribers</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                            <tr class="text-left text-text-secondary border-b border-primary-200">
+                                <th class="py-3 pr-4">Subscribed</th>
+                                <th class="py-3 pr-4">Email</th>
+                            </tr>
+                            </thead>
+                            <tbody th:if="${subscribers} != null">
+                            <tr th:each="s : ${subscribers}" class="border-b border-primary-100">
+                                <td class="py-3 pr-4" th:text="${#temporals.format(s.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</td>
+                                <td class="py-3 pr-4" th:text="${s.email}">email@example.com</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(subscribers)}">
+                                <td class="py-6 text-center text-text-secondary" colspan="2">No subscribers yet.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
                 <!-- Analytics -->
                 <section id="analytics" class="card">
                     <div class="flex justify-between items-center mb-6">

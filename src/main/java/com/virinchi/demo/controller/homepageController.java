@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.ui.Model;
 import com.virinchi.demo.repository.ProductRepository;
 import com.virinchi.demo.model.Product;
+import com.virinchi.demo.repository.ContactMessageRepository;
+import com.virinchi.demo.repository.NewsletterSubscriptionRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
@@ -15,10 +17,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class homepageController {
 
     private final ProductRepository productRepository;
+    private final ContactMessageRepository contactMessageRepository;
+    private final NewsletterSubscriptionRepository newsletterSubscriptionRepository;
     private static final Logger log = LoggerFactory.getLogger(homepageController.class);
 
-    public homepageController(ProductRepository productRepository) {
+    public homepageController(ProductRepository productRepository,
+                              ContactMessageRepository contactMessageRepository,
+                              NewsletterSubscriptionRepository newsletterSubscriptionRepository) {
         this.productRepository = productRepository;
+        this.contactMessageRepository = contactMessageRepository;
+        this.newsletterSubscriptionRepository = newsletterSubscriptionRepository;
     }
 
     @GetMapping("/")
@@ -52,6 +60,10 @@ public class homepageController {
             return "redirect:/login?admin=required";
         }
         model.addAttribute("products", productRepository.findAll());
+        try {
+            model.addAttribute("messages", contactMessageRepository.findTop50ByOrderByCreatedAtDesc());
+            model.addAttribute("subscribers", newsletterSubscriptionRepository.findTop50ByOrderByCreatedAtDesc());
+        } catch (Exception ignored) {}
         return "admin_dashboard";
     }
     @GetMapping("/contact")

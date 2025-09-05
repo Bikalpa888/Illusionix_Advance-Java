@@ -207,7 +207,16 @@
     <div class="grid lg:grid-cols-2 gap-12">
       <!-- Contact Form -->
       <div class="card">
-        <form id="contact-form" class="space-y-6">
+        <div th:if="${param.sent}">
+          <div class="text-center py-8">
+            <svg class="w-16 h-16 text-success mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h3 class="text-xl font-semibold text-primary mb-2">Message Sent!</h3>
+            <p class="text-text-secondary">Thank you for contacting us. We'll get back to you within 24 hours.</p>
+          </div>
+        </div>
+        <form id="contact-form" class="space-y-6" method="post" action="/contact">
           <div class="grid md:grid-cols-2 gap-6">
             <div>
               <label for="first-name" class="block text-sm font-semibold text-primary mb-2">First Name *</label>
@@ -539,30 +548,7 @@
       }
   });
 
-  // Contact form submission
-  document.getElementById('contact-form')?.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      // Show success message
-      const form = this;
-      const originalHTML = form.innerHTML;
-
-      form.innerHTML = `
-          <div class="text-center py-8">
-              <svg class="w-16 h-16 text-success mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <h3 class="text-xl font-semibold text-primary mb-2">Message Sent!</h3>
-              <p class="text-text-secondary">Thank you for contacting us. We'll get back to you within 24 hours.</p>
-          </div>
-      `;
-
-      // Reset form after 5 seconds
-      setTimeout(() => {
-          form.innerHTML = originalHTML;
-          form.reset();
-      }, 5000);
-  });
+  // Contact form posts to server; JS not required.
 </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
 </body>
