@@ -662,33 +662,100 @@
                 <section id="settings" class="card">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-primary">Settings</h2>
-                        <button class="btn-accent text-sm">Save Changes</button>
+                        <button form="settings-form" class="btn-accent text-sm">Save Changes</button>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-semibold text-primary mb-4">Store</h3>
-                            <div class="space-y-4">
-                                <label class="block">
-                                    <span class="text-sm text-text-secondary">Store Name</span>
-                                    <input type="text" class="input-field mt-1" placeholder="Illusionix" />
-                                </label>
-                                <label class="block">
-                                    <span class="text-sm text-text-secondary">Support Email</span>
-                                    <input type="email" class="input-field mt-1" placeholder="support@illusionix.io" />
-                                </label>
-                                <label class="block">
-                                    <span class="text-sm text-text-secondary">Currency</span>
-                                    <select class="input-field mt-1">
-                                        <option>USD</option>
-                                        <option>EUR</option>
-                                        <option>GBP</option>
-                                    </select>
-                                </label>
+                    <!-- Email status banner -->
+                    <div class="mb-4" th:if="${param.email}">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-md border"
+                             th:classappend="${param.email[0]} == 'sent' ? ' bg-success-50 border-success-200 text-success' :
+                                             (${param.email[0]} == 'missing_recipient' ? ' bg-warning-50 border-warning-200 text-warning' :
+                                             ' bg-error-50 border-error-200 text-error')">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                 th:if="${param.email[0]} == 'sent'">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                 th:if="${param.email[0]} == 'missing_recipient'">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 18a6 6 0 100-12 6 6 0 000 12z"/>
+                            </svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                 th:if="${param.email[0]} == 'send_failed'">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-sm font-medium" th:text="${param.email[0]} == 'sent' ? 'Email sent successfully' :
+                                    (${param.email[0]} == 'missing_recipient' ? 'Recipient missing: provide an email or user ID' :
+                                    'Failed to send email. Try again.')">Status</span>
+                        </div>
+                    </div>
+                    <form id="settings-form" method="post" action="/admin/settings">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-semibold text-primary mb-4">Store</h3>
+                                <div class="space-y-4">
+                                    <label class="block">
+                                        <span class="text-sm text-text-secondary">Store Name</span>
+                                        <input type="text" name="storeName" class="input-field mt-1" placeholder="Illusionix" th:value="${settings} != null ? ${settings.storeName} : ${storeName}" />
+                                    </label>
+                                    <label class="block">
+                                        <span class="text-sm text-text-secondary">Support Email</span>
+                                        <input type="email" name="supportEmail" class="input-field mt-1" placeholder="support@illusionix.io" th:value="${settings} != null ? ${settings.supportEmail} : ${supportEmail}" />
+                                    </label>
+                                    <label class="block">
+                                        <span class="text-sm text-text-secondary">Currency</span>
+                                        <select name="currency" class="input-field mt-1" th:value="${settings} != null ? ${settings.currency} : ${storeCurrency}">
+                                            <option value="NRP">NRP</option>
+                                            <option value="USD">USD</option>
+                                            <option value="BTC">BTC</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-primary mb-4">Brand</h3>
+                                <div class="space-y-4">
+                                    <label class="block">
+                                        <span class="text-sm text-text-secondary">Logo URL</span>
+                                        <input type="text" name="logoUrl" class="input-field mt-1" placeholder="/images/logo.png" th:value="${settings} != null ? ${settings.logoUrl} : ${brandLogoUrl}" />
+                                    </label>
+                                    <label class="block">
+                                        <span class="text-sm text-text-secondary">Logo (Dark) URL</span>
+                                        <input type="text" name="logoDarkUrl" class="input-field mt-1" placeholder="/images/logo-dark.png" th:value="${settings} != null ? ${settings.logoDarkUrl} : ${brandLogoDarkUrl}" />
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-primary mb-4">Security</h3>
-                            <div class="space-y-4">
+                    </form>
+                    <div class="grid md:grid-cols-2 gap-6 mt-6">
+                        <div class="p-4 border border-primary-200 rounded-lg">
+                            <h3 class="font-semibold text-primary mb-4">Send Email</h3>
+                            <form method="post" action="/admin/email/send" class="space-y-3">
+                                <div class="grid md:grid-cols-2 gap-3">
+                                    <label class="block">
+                                        <span class="text-sm text-text-secondary">To (email)</span>
+                                        <input type="email" name="toEmail" class="input-field mt-1" placeholder="customer@example.com" />
+                                    </label>
+                                    <label class="block">
+                                        <span class="text-sm text-text-secondary">Or User ID</span>
+                                        <input type="number" name="userId" class="input-field mt-1" placeholder="123" />
+                                    </label>
+                                </div>
+                                <label class="block">
+                                    <span class="text-sm text-text-secondary">Subject</span>
+                                    <input type="text" name="subject" class="input-field mt-1" placeholder="Subject" required />
+                                </label>
+                                <label class="block">
+                                    <span class="text-sm text-text-secondary">Message</span>
+                                    <textarea name="message" rows="5" class="input-field mt-1" placeholder="Write your message..." required></textarea>
+                                </label>
+                                <div class="flex justify-end">
+                                    <button type="submit" class="btn-secondary">Send</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="p-4 border border-primary-200 rounded-lg">
+                            <h3 class="font-semibold text-primary mb-2">Security</h3>
+                            <p class="text-sm text-text-secondary mb-3">Configure authentication and operational controls.</p>
+                            <div class="space-y-3">
                                 <div class="flex items-center justify-between p-3 border border-primary-200 rounded-lg">
                                     <div>
                                         <p class="font-medium">Two-Factor Authentication</p>
@@ -702,13 +769,6 @@
                                         <p class="text-sm text-text-secondary">Track critical changes and access</p>
                                     </div>
                                     <button class="btn-secondary text-sm">View</button>
-                                </div>
-                                <div class="flex items-center justify-between p-3 border border-primary-200 rounded-lg">
-                                    <div>
-                                        <p class="font-medium">Maintenance Mode</p>
-                                        <p class="text-sm text-text-secondary">Temporarily disable storefront</p>
-                                    </div>
-                                    <button class="btn-secondary text-sm">Activate</button>
                                 </div>
                             </div>
                         </div>

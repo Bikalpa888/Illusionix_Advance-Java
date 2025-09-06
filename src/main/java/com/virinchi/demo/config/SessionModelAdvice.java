@@ -54,6 +54,9 @@ public class SessionModelAdvice {
                     var s = all.get(0);
                     if (s.getLogoUrl() != null && !s.getLogoUrl().isBlank()) logoUrl = s.getLogoUrl();
                     if (s.getLogoDarkUrl() != null && !s.getLogoDarkUrl().isBlank()) logoDarkUrl = s.getLogoDarkUrl();
+                    if (s.getStoreName() != null) model.addAttribute("storeName", s.getStoreName());
+                    if (s.getSupportEmail() != null) model.addAttribute("supportEmail", s.getSupportEmail());
+                    if (s.getCurrency() != null) model.addAttribute("storeCurrency", s.getCurrency());
                 }
             }
         } catch (Exception ignored) {}

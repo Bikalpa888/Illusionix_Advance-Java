@@ -23,18 +23,21 @@ public class homepageController {
     private final OrderRepository orderRepository;
     private final NewsletterSubscriptionRepository newsletterSubscriptionRepository;
     private final signupRepo signupRepo;
+    private final com.virinchi.demo.repository.SiteSettingsRepository siteSettingsRepository;
     private static final Logger log = LoggerFactory.getLogger(homepageController.class);
 
     public homepageController(ProductRepository productRepository,
                               ContactMessageRepository contactMessageRepository,
                               NewsletterSubscriptionRepository newsletterSubscriptionRepository,
                               OrderRepository orderRepository,
-                              signupRepo signupRepo) {
+                              signupRepo signupRepo,
+                              com.virinchi.demo.repository.SiteSettingsRepository siteSettingsRepository) {
         this.productRepository = productRepository;
         this.contactMessageRepository = contactMessageRepository;
         this.newsletterSubscriptionRepository = newsletterSubscriptionRepository;
         this.orderRepository = orderRepository;
         this.signupRepo = signupRepo;
+        this.siteSettingsRepository = siteSettingsRepository;
     }
 
     @GetMapping("/")
@@ -83,6 +86,10 @@ public class homepageController {
         try {
             model.addAttribute("messages", contactMessageRepository.findTop50ByOrderByCreatedAtDesc());
             model.addAttribute("subscribers", newsletterSubscriptionRepository.findTop50ByOrderByCreatedAtDesc());
+        } catch (Exception ignored) {}
+        try {
+            var all = siteSettingsRepository.findAll();
+            if(!all.isEmpty()) model.addAttribute("settings", all.get(0));
         } catch (Exception ignored) {}
         return "admin_dashboard";
     }
