@@ -2,6 +2,7 @@ package com.virinchi.demo.config;
 
 import com.virinchi.demo.repository.SiteSettingsRepository;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -10,10 +11,10 @@ import org.springframework.ui.Model;
 @ControllerAdvice(annotations = Controller.class)
 public class SessionModelAdvice {
 
-    private final SiteSettingsRepository siteSettingsRepository;
+    private final ObjectProvider<SiteSettingsRepository> siteSettingsProvider;
 
-    public SessionModelAdvice(SiteSettingsRepository siteSettingsRepository) {
-        this.siteSettingsRepository = siteSettingsRepository;
+    public SessionModelAdvice(ObjectProvider<SiteSettingsRepository> siteSettingsProvider) {
+        this.siteSettingsProvider = siteSettingsProvider;
     }
 
     @ModelAttribute
@@ -46,11 +47,14 @@ public class SessionModelAdvice {
         String logoUrl = "/images/logo.png"; // default bundled asset
         String logoDarkUrl = logoUrl;
         try {
-            var all = siteSettingsRepository.findAll();
-            if (!all.isEmpty()) {
-                var s = all.get(0);
-                if (s.getLogoUrl() != null && !s.getLogoUrl().isBlank()) logoUrl = s.getLogoUrl();
-                if (s.getLogoDarkUrl() != null && !s.getLogoDarkUrl().isBlank()) logoDarkUrl = s.getLogoDarkUrl();
+            SiteSettingsRepository repo = siteSettingsProvider.getIfAvailable();
+            if (repo != null) {
+                var all = repo.findAll();
+                if (!all.isEmpty()) {
+                    var s = all.get(0);
+                    if (s.getLogoUrl() != null && !s.getLogoUrl().isBlank()) logoUrl = s.getLogoUrl();
+                    if (s.getLogoDarkUrl() != null && !s.getLogoDarkUrl().isBlank()) logoDarkUrl = s.getLogoDarkUrl();
+                }
             }
         } catch (Exception ignored) {}
         model.addAttribute("brandLogoUrl", logoUrl);

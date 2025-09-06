@@ -6,6 +6,7 @@ import com.virinchi.demo.repository.ProductRepository;
 import com.virinchi.demo.model.Product;
 import com.virinchi.demo.repository.ContactMessageRepository;
 import com.virinchi.demo.repository.OrderRepository;
+import com.virinchi.demo.repository.signupRepo;
 import com.virinchi.demo.repository.NewsletterSubscriptionRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,16 +22,19 @@ public class homepageController {
     private final ContactMessageRepository contactMessageRepository;
     private final OrderRepository orderRepository;
     private final NewsletterSubscriptionRepository newsletterSubscriptionRepository;
+    private final signupRepo signupRepo;
     private static final Logger log = LoggerFactory.getLogger(homepageController.class);
 
     public homepageController(ProductRepository productRepository,
                               ContactMessageRepository contactMessageRepository,
                               NewsletterSubscriptionRepository newsletterSubscriptionRepository,
-                              OrderRepository orderRepository) {
+                              OrderRepository orderRepository,
+                              signupRepo signupRepo) {
         this.productRepository = productRepository;
         this.contactMessageRepository = contactMessageRepository;
         this.newsletterSubscriptionRepository = newsletterSubscriptionRepository;
         this.orderRepository = orderRepository;
+        this.signupRepo = signupRepo;
     }
 
     @GetMapping("/")
@@ -74,6 +78,8 @@ public class homepageController {
         }
         model.addAttribute("products", productRepository.findAll());
         try { model.addAttribute("orders", orderRepository.findTop50ByOrderByCreatedAtDesc()); } catch (Exception ignored) {}
+        // Ensure users list is always attempted even if other sections fail
+        try { model.addAttribute("users", signupRepo.findSummaries()); } catch (Exception ignored) { model.addAttribute("users", java.util.Collections.emptyList()); }
         try {
             model.addAttribute("messages", contactMessageRepository.findTop50ByOrderByCreatedAtDesc());
             model.addAttribute("subscribers", newsletterSubscriptionRepository.findTop50ByOrderByCreatedAtDesc());

@@ -26,11 +26,12 @@ public class shoppingCartCheckoutController {
     private final JavaMailSender mailSender;
     private final String mailFrom;
     private final String notifyTo;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public shoppingCartCheckoutController(CartService cartService,
                                           OrderService orderService,
                                           JavaMailSender mailSender,
+                                          ObjectMapper objectMapper,
                                           @Value("${spring.mail.username:}") String mailFrom,
                                           @Value("${app.contact.notifyTo:}") String notifyTo) {
         this.cartService = cartService;
@@ -38,6 +39,8 @@ public class shoppingCartCheckoutController {
         this.mailSender = mailSender;
         this.mailFrom = mailFrom;
         this.notifyTo = (notifyTo == null || notifyTo.isBlank()) ? mailFrom : notifyTo;
+        // Use Spring Boot's auto-configured ObjectMapper so JavaTimeModule is registered
+        this.objectMapper = objectMapper;
     }
 
     private String ownerKey(HttpSession session){

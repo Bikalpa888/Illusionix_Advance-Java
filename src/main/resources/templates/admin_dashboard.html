@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <a href="shopping_cart_checkout" class="relative text-text-secondary hover:text-secondary">
+                    <a href="/shopping_cart_checkout" th:href="@{/shopping_cart_checkout}" class="relative text-text-secondary hover:text-secondary">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
                         </svg>
@@ -67,7 +67,7 @@
                         <svg data-icon="moon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 118.646 3.646 7 7 0 0020.354 15.354z"/></svg>
                         <svg data-icon="sun" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
                     </button>
-                    <a href="#" class="btn-secondary" data-action="logout">Logout</a>
+                    <a href="/logout" th:href="@{/logout}" class="btn-secondary text-sm px-4 py-2" data-action="logout">Logout</a>
                 </div>
             </div>
 
@@ -266,10 +266,10 @@
                             </div>
                         </div>
                     </div>
-                </section>
+</section>
 
-                <!-- Contact Messages -->
-                <section id="contact_messages" class="card">
+<!-- Contact Messages -->
+<section id="contact_messages" class="card">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-primary">Contact Messages</h2>
                     </div>
@@ -299,6 +299,32 @@
                         </table>
                     </div>
                 </section>
+
+                <script>
+                    function toggleMenu(id){
+                        const m = document.getElementById(id);
+                        if(!m) return; 
+                        const show = m.classList.contains('hidden');
+                        document.querySelectorAll('#users-export-menu,#orders-export-menu').forEach(el=>{ if(el && el.id!==id) el.classList.add('hidden'); });
+                        if (show) m.classList.remove('hidden'); else m.classList.add('hidden');
+                    }
+                    function logExport(type, format){
+                        try{
+                            const key = 'illusionix_admin_exports';
+                            const list = JSON.parse(localStorage.getItem(key)||'[]');
+                            list.unshift({type, format, at: new Date().toISOString()});
+                            while(list.length>50) list.pop();
+                            localStorage.setItem(key, JSON.stringify(list));
+                        }catch(_){ }
+                        // Let the anchor proceed with download
+                        setTimeout(()=>document.querySelectorAll('#users-export-menu,#orders-export-menu').forEach(el=>el.classList.add('hidden')), 150);
+                    }
+                    document.addEventListener('click', function(e){
+                        if(!e.target.closest('#users-export-menu') && !e.target.closest('#orders-export-menu') && !e.target.closest('button.btn-accent')){
+                            document.querySelectorAll('#users-export-menu,#orders-export-menu').forEach(el=>el.classList.add('hidden'));
+                        }
+                    });
+                </script>
 
                 <!-- Newsletter Subscribers -->
                 <section id="newsletter" class="card">
@@ -357,7 +383,13 @@
                 <section id="orders" class="card">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-primary">Recent Orders</h2>
-                        <button class="btn-accent text-sm">View All</button>
+                        <div class="relative inline-block">
+                            <button class="btn-accent text-sm" onclick="toggleMenu('orders-export-menu')">Export</button>
+                            <div id="orders-export-menu" class="absolute right-0 mt-2 w-44 bg-white border border-primary-200 rounded-md shadow-lg hidden">
+                                <a href="/admin/export/orders.csv" class="block px-4 py-2 text-sm hover:bg-primary-50" onclick="logExport('ORDERS','CSV')">Download CSV</a>
+                                <a href="/admin/export/orders.png" class="block px-4 py-2 text-sm hover:bg-primary-50" onclick="logExport('ORDERS','PNG')">Download PNG</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm">
@@ -546,7 +578,13 @@
                         <h2 class="text-2xl font-bold text-primary">Users</h2>
                         <div class="flex gap-2">
                             <button class="btn-secondary text-sm">Invite User</button>
-                            <button class="btn-accent text-sm">Export</button>
+                            <div class="relative inline-block">
+                                <button class="btn-accent text-sm" onclick="toggleMenu('users-export-menu')">Export</button>
+                                <div id="users-export-menu" class="absolute right-0 mt-2 w-40 bg-white border border-primary-200 rounded-md shadow-lg hidden">
+                                    <a href="/admin/export/users.csv" class="block px-4 py-2 text-sm hover:bg-primary-50" onclick="logExport('USERS','CSV')">Download CSV</a>
+                                    <a href="/admin/export/users.png" class="block px-4 py-2 text-sm hover:bg-primary-50" onclick="logExport('USERS','PNG')">Download PNG</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -560,27 +598,16 @@
                                 <th class="py-3">Actions</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr class="border-b border-primary-100">
-                                <td class="py-4 pr-4 font-semibold">Alex Doe</td>
-                                <td class="py-4 pr-4">alex@example.com</td>
-                                <td class="py-4 pr-4">Admin</td>
+                            <tbody th:if="${users} != null">
+                            <tr th:each="u : ${users}" class="border-b border-primary-100">
+                                <td class="py-4 pr-4 font-semibold" th:text="${u.username}">Username</td>
+                                <td class="py-4 pr-4" th:text="${u.email}">email@example.com</td>
+                                <td class="py-4 pr-4">User</td>
                                 <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-success-100 text-success">Active</span></td>
-                                <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Edit</button><button class="btn-accent text-xs px-3 py-2">Reset</button></div></td>
+                                <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2" disabled>View</button></div></td>
                             </tr>
-                            <tr class="border-b border-primary-100">
-                                <td class="py-4 pr-4 font-semibold">Jamie Lin</td>
-                                <td class="py-4 pr-4">jamie@example.com</td>
-                                <td class="py-4 pr-4">Manager</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-warning-50 text-warning">Pending</span></td>
-                                <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Approve</button><button class="btn-accent text-xs px-3 py-2">Resend</button></div></td>
-                            </tr>
-                            <tr>
-                                <td class="py-4 pr-4 font-semibold">Priya N.</td>
-                                <td class="py-4 pr-4">priya@example.com</td>
-                                <td class="py-4 pr-4">Support</td>
-                                <td class="py-4 pr-4"><span class="px-2 py-1 rounded-full text-xs bg-error-100 text-error">Suspended</span></td>
-                                <td class="py-4"><div class="flex gap-2"><button class="btn-secondary text-xs px-3 py-2">Review</button><button class="btn-accent text-xs px-3 py-2">Reinstate</button></div></td>
+                            <tr th:if="${#lists.isEmpty(users)}">
+                                <td class="py-6 text-center text-text-secondary" colspan="5">No users found.</td>
                             </tr>
                             </tbody>
                             

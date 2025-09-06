@@ -65,6 +65,7 @@ public class loginController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/login?loggedout";
+        // Redirect to public homepage after logout
+        return "redirect:/?loggedout";
     }
 }
