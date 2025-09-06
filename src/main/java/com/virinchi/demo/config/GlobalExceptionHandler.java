@@ -33,6 +33,13 @@ public class GlobalExceptionHandler {
                             "message", "Something went wrong",
                             "traceId", traceId
                     ));
+        } else if (accept != null && (accept.contains("application/javascript") || accept.contains("text/javascript"))) {
+            // For script requests, avoid JSON conversion issues; return a JS comment with trace
+            MediaType js = MediaType.parseMediaType("application/javascript;charset=UTF-8");
+            String body = "/* internal_error traceId=" + (traceId == null ? "-" : traceId) + " */";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(js)
+                    .body(body);
         }
 
         ModelMap model = new ModelMap();
@@ -43,4 +50,3 @@ public class GlobalExceptionHandler {
         return new ModelAndView("error/500", model, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
-

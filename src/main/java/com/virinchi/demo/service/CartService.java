@@ -63,9 +63,10 @@ public class CartService {
     public Map<String, Object> summary(String ownerKey) {
         var items = list(ownerKey);
         BigDecimal subtotal = items.stream()
-                .map(ci -> ci.getPrice().multiply(BigDecimal.valueOf(ci.getQuantity())))
+                .map(ci -> (ci.getPrice() == null ? BigDecimal.ZERO : ci.getPrice())
+                        .multiply(BigDecimal.valueOf(ci.getQuantity() == null ? 1 : Math.max(1, ci.getQuantity()))))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        int count = items.stream().mapToInt(ci -> ci.getQuantity()).sum();
+        int count = items.stream().mapToInt(ci -> ci.getQuantity() == null ? 1 : Math.max(1, ci.getQuantity())).sum();
         Map<String, Object> m = new HashMap<>();
         m.put("count", count);
         m.put("subtotal", subtotal);
@@ -73,4 +74,3 @@ public class CartService {
         return m;
     }
 }
-

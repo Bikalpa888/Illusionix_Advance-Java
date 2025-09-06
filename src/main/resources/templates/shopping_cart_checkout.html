@@ -1097,6 +1097,8 @@
 
 <!-- Enhanced JavaScript Functionality -->
 <script>
+  // XSRF helper available globally
+  function xsrf(){ try{ return document.cookie.split('; ').find(r=>r.startsWith('XSRF-TOKEN='))?.split('=')[1]||'';}catch(_){return '';} }
   // Mobile menu toggle
   document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
       document.getElementById('mobile-menu')?.classList.toggle('hidden');
@@ -1418,7 +1420,7 @@
           showNotification(`Promo code applied: ${promo.description}`, 'success');
           document.getElementById('promo-code').value = '';
       } else {
-          showNotification('Invalid promo code', 'error');
+          showNotification('Invalid promo code', 'warning');
       }
   }
 
@@ -1462,7 +1464,6 @@
       const paymentModal = document.getElementById('payment-modal');
       const closeModalBtn = document.getElementById('close-payment-modal');
       const placeOrderBtn = document.getElementById('place-order-btn');
-      function xsrf(){ try{ return document.cookie.split('; ').find(r=>r.startsWith('XSRF-TOKEN='))?.split('=')[1]||'';}catch(_){return '';} }
 
       checkoutBtn?.addEventListener('click', function() {
           paymentModal.classList.remove('hidden');
@@ -1536,20 +1537,58 @@
               input.classList.remove('border-error');
           }
       });
-      if (!valid) { showNotification('Please fill in all required fields', 'error'); return; }
+      if (!valid) { showNotification('Please fill in all required fields', 'warning'); return; }
 
       const btn = document.getElementById('place-order-btn');
       btn.innerHTML = 'Processing Order...';
       btn.disabled = true;
       try {
-          const res = await fetch('/order/place', { method: 'POST', headers:{'X-XSRF-TOKEN': xsrf()} });
-          if (!res.ok) throw new Error('Failed');
-          const data = await res.json();
+          // Ensure server-side cart is in sync with client before placing order
+          try {
+              const items = Array.isArray(cartData.items) ? cartData.items : [];
+              for (const it of items) {
+                  const sku = String(it.id||'');
+                  const qty = String(it.quantity||1);
+                  if (!sku) continue;
+                  await fetch('/cart/add', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: new URLSearchParams({ sku, qty, name: it.name||'', price: String(it.price||0), image: it.image||'' }) });
+              }
+          } catch(_) { /* best-effort */ }
+          // Prepare lightweight payload as a fallback if server-side cart is empty
+          const payload = {
+              userName: document.getElementById('cardholder-name')?.value || undefined,
+              userEmail: document.querySelector('input[type="email"]')?.value || undefined,
+              items: (cartData.items||[]).map(it=>({ id: String(it.id), name: it.name, price: Number(it.price||0), qty: Number(it.quantity||1), image: it.image||'' }))
+          };
+          const res = await fetch('/order/place', {
+              method: 'POST',
+              headers: { 'X-XSRF-TOKEN': xsrf(), 'Accept':'application/json', 'Content-Type':'application/json' },
+              body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+              // Try to parse JSON to show a more helpful message
+              let detailText = '';
+              try { const j = await res.json(); detailText = j && j.message ? String(j.message) : ''; } catch(_){ try{ detailText = await res.text(); }catch(_){ detailText=''; } }
+              const msg = detailText && detailText.length > 0 ? detailText : 'Unable to place order right now';
+              throw new Error(msg);
+          }
+          let data = {};
+          try { data = await res.json(); } catch(_) { data = {}; }
           const numEl = document.getElementById('order-number'); if (numEl) numEl.textContent = data.orderNumber || '#ORDER';
+          // Clear local cart and refresh UI for consistency with server-cleared cart
+          try {
+              cartData.items = [];
+              writeCartToStorage();
+              renderCartItems();
+              updateCartTotals();
+              updateCartBadge();
+          } catch(_) {}
           document.getElementById('payment-modal').classList.add('hidden');
           document.getElementById('confirmation-modal').classList.remove('hidden');
+          showNotification('Order placed successfully! Confirmation email sent.', 'success');
       } catch (e) {
-          showNotification('Could not place order. Please try again.', 'error');
+          try { console.error('placeOrder failed:', e); } catch(_) {}
+          const msg = (e && e.message) ? String(e.message) : 'Could not place order. Please try again.';
+          showNotification(msg, 'warning');
       } finally {
           btn.innerHTML = 'Place Order - $892.08';
           btn.disabled = false;
@@ -1588,6 +1627,20 @@
           setTimeout(() => notification.remove(), 300);
       }, 5000);
   }
+
+  // Theme toggle (light/dark) consistent with other pages
+  (function(){
+    const KEY='illusionix-theme', DARK='theme-dark';
+    function apply(t){ const r=document.documentElement; if(t==='dark') r.classList.add(DARK); else r.classList.remove(DARK); }
+    function get(){ try{return localStorage.getItem(KEY)||'light';}catch(_){return 'light';} }
+    function set(t){ try{localStorage.setItem(KEY,t);}catch(_){}}
+    function current(){ return document.documentElement.classList.contains(DARK)?'dark':'light'; }
+    function reflect(){ const t=current(); document.querySelectorAll('.theme-toggle [data-icon="sun"]').forEach(e=>e.style.display=t==='dark'?'inline-block':'none'); document.querySelectorAll('.theme-toggle [data-icon="moon"]').forEach(e=>e.style.display=t==='dark'?'none':'inline-block'); document.querySelectorAll('.theme-toggle').forEach(b=>{ b.setAttribute('aria-pressed', t==='dark'?'true':'false'); b.setAttribute('title', t==='dark'?'Switch to light mode':'Switch to dark mode'); }); }
+    // initial
+    apply(get()); reflect();
+    // bind
+    document.querySelectorAll('.theme-toggle').forEach(btn=> btn.addEventListener('click', function(){ const next=current()==='dark'?'light':'dark'; apply(next); set(next); reflect(); }));
+  })();
 </script>
 
 <style>

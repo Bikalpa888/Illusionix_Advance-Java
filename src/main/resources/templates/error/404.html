@@ -15,11 +15,11 @@
         <svg th:if="${brandLogoUrl} == null" class="w-8 h-8 text-secondary" viewBox="0 0 40 40" fill="currentColor"><path d="M20 4L36 12v16L20 36L4 28V12L20 4z"/></svg>
         <span class="ml-2 text-lg font-bold text-primary">Illusionix</span>
       </a>
-      <div class="flex items-center space-x-2" th:if="${!loggedIn}">
+      <div class="flex items-center space-x-2" th:if="${loggedIn == null or loggedIn == false}">
         <a href="/" th:href="@{/}" class="btn-accent text-sm px-4 py-2">Go Home</a>
         <a href="login" th:href="@{/login}" class="btn-secondary text-sm px-4 py-2">Login</a>
       </div>
-      <div class="flex items-center space-x-3" th:if="${loggedIn}">
+      <div class="flex items-center space-x-3" th:if="${loggedIn == true}">
         <span class="text-sm text-text-secondary">Hi, <span class="text-primary font-semibold" th:text="${currentUserName}">User</span></span>
         <a href="/" th:href="@{/}" class="btn-accent text-sm px-4 py-2">Home</a>
         <a href="logout" th:href="@{/logout}" class="btn-secondary text-sm px-4 py-2">Logout</a>

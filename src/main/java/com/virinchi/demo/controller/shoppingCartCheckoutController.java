@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.virinchi.demo.model.CartItem;
 import com.virinchi.demo.model.Order;
+import com.virinchi.demo.dto.PlaceOrderRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.MediaType;
 import com.virinchi.demo.service.CartService;
 import com.virinchi.demo.service.OrderService;
 import jakarta.servlet.http.HttpSession;
@@ -51,20 +54,68 @@ public class shoppingCartCheckoutController {
         return "session:" + session.getId();
     }
 
-    @PostMapping("/order/place")
+    @PostMapping(value = "/order/place", consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public Map<String,Object> placeOrder(HttpSession session){
-        String key = ownerKey(session);
-        String userName = objToStr(session.getAttribute("userName"));
-        if(userName == null || userName.isBlank()) userName = objToStr(session.getAttribute("activeUser"));
-        String userEmail = objToStr(session.getAttribute("userEmail"));
-        Order order = orderService.place(key, userName, userEmail);
-        sendOrderEmails(order);
-        return Map.of(
-                "ok", true,
-                "orderNumber", order.getOrderNumber(),
-                "total", order.getTotal()
-        );
+    public ResponseEntity<Map<String,Object>> placeOrder(HttpSession session,
+                                                         HttpServletRequest httpReq){
+        try {
+            // Read optional JSON body safely (avoid 400 on empty/invalid bodies)
+            PlaceOrderRequest request = null;
+            try {
+                String body = httpReq.getReader().lines().reduce("", (a,b)-> a + b);
+                if (body != null && !body.isBlank()) {
+                    request = objectMapper.readValue(body, PlaceOrderRequest.class);
+                }
+            } catch (Exception ignored) { request = null; }
+            String key = ownerKey(session);
+            var summary = cartService.summary(key);
+            Object countObj = summary.get("count");
+            int count = (countObj instanceof Number) ? ((Number) countObj).intValue() : 0;
+            // Resolve user identity from session or request payload
+            String userName = objToStr(session.getAttribute("userName"));
+            if(userName == null || userName.isBlank()) userName = objToStr(session.getAttribute("activeUser"));
+            String userEmail = objToStr(session.getAttribute("userEmail"));
+            if (request != null) {
+                if ((userName == null || userName.isBlank()) && request.getUserName() != null) userName = request.getUserName();
+                if ((userEmail == null || userEmail.isBlank()) && request.getUserEmail() != null) userEmail = request.getUserEmail();
+            }
+            Order order;
+            try {
+                if (count <= 0) {
+                    if (request != null && request.getItems() != null && !request.getItems().isEmpty()) {
+                        order = orderService.placeFromClientItems(key, userName, userEmail, request.getItems());
+                    } else {
+                        return ResponseEntity.badRequest().body(Map.of(
+                                "ok", false,
+                                "error", "empty_cart",
+                                "message", "Your cart is empty"
+                        ));
+                    }
+                } else {
+                    // Normal path: place from server-side cart
+                    order = orderService.place(key, userName, userEmail);
+                }
+            } catch (Exception primaryFailure) {
+                // As a last resort, try placing from client items if available
+                if (request != null && request.getItems() != null && !request.getItems().isEmpty()) {
+                    order = orderService.placeFromClientItems(key, userName, userEmail, request.getItems());
+                } else {
+                    throw primaryFailure;
+                }
+            }
+            sendOrderEmails(order);
+            return ResponseEntity.ok(Map.of(
+                    "ok", true,
+                    "orderNumber", order.getOrderNumber(),
+                    "total", order.getTotal()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "ok", false,
+                    "error", "place_failed",
+                    "message", "Unable to place order right now"
+            ));
+        }
     }
 
     private String objToStr(Object o){ return (o instanceof String) ? (String) o : null; }
