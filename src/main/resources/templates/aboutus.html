@@ -201,6 +201,21 @@
     </div>
 </section>
 
+<script>
+  // Keep cart badge in sync on all pages
+  (function(){
+    const KEY='illusionix_cart';
+    function read(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{"items":[]}'); }catch(_){ return {items:[]}; } }
+    function localCount(){ const c = (read().items||[]).reduce((s,i)=> s + Number(i.qty||i.quantity||0), 0); return isFinite(c)?c:0; }
+    function paint(n){ document.querySelectorAll('#cart-count,[data-cart-count]').forEach(el=> el.textContent = String(n)); }
+    function update(){ paint(localCount()); }
+    if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', update); } else { update(); }
+    // Best-effort server override for logged-in sessions
+    try{ fetch('/cart').then(r=>r.ok?r.json():null).then(j=>{ if(j&&typeof j.count==='number') paint(j.count); }).catch(()=>{}); }catch(_){ }
+  })();
+</script>
+<div th:replace="fragments/cart-utils :: cartScripts"></div>
+
 <!-- Our Story -->
 <section class="py-20 bg-background">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

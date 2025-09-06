@@ -218,7 +218,7 @@
         get(){return read();},clear(){write({items:[]});updateBadges();}
       };
     }
-    document.addEventListener('click',function(e){const btn=e.target.closest('[data-add-to-cart]');if(!btn)return;Cart.add({id:btn.getAttribute('data-id'),name:btn.getAttribute('data-name'),price:Number(btn.getAttribute('data-price')||0),image:btn.getAttribute('data-image')||'',qty:1});btn.classList.add('ring-2','ring-accent');setTimeout(()=>btn.classList.remove('ring-2','ring-accent'),400);});
+    // Add-to-cart handled globally by shared cart-utils
     if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',updateBadges);}else{updateBadges();}
   })();
 </script>
@@ -1282,15 +1282,28 @@
           }
       });
 
-      // Add to cart from recommendations
-      document.querySelectorAll('.add-to-cart').forEach(btn => {
-          btn.addEventListener('click', function(e) {
-              e.preventDefault();
-              const productData = JSON.parse(this.dataset.product);
-              addToCart(productData);
-          });
-      });
+      // Add to cart from recommendations - handled by shared cart-utils
+      // Keep legacy handler only if fragment isn't loaded
+      if(!window.__cartUtilsLoaded){
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                try{ const productData = JSON.parse(this.dataset.product); addToCart(productData); }catch(_){ }
+            });
+        });
+      }
   }
+
+  // Re-render cart on global cart updates from shared fragment
+  document.addEventListener('cart:updated', function(){
+      try {
+          const stored = readCartFromStorage();
+          cartData.items = (stored.items||[]).map(it=>({ id: String(it.id), name: it.name, price: Number(it.price||0), quantity: Number(it.qty||it.quantity||1), image: it.image||'' }));
+          renderCartItems();
+          updateCartTotals();
+          updateCartBadge();
+      } catch(_) {}
+  });
 
   // Quantity controls
   function initializeQuantityControls() {
@@ -1685,7 +1698,8 @@
   ::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
   }
-</style>
+ </style>
+<div th:replace="fragments/cart-utils :: cartScripts"></div>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
 </body>
 </html>

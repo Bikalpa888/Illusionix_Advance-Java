@@ -116,7 +116,7 @@
           get(){return read();},clear(){write({items:[]});updateBadges();}
         };
       }
-      document.addEventListener('click',function(e){const btn=e.target.closest('[data-add-to-cart]');if(!btn)return;Cart.add({id:btn.getAttribute('data-id'),name:btn.getAttribute('data-name'),price:Number(btn.getAttribute('data-price')||0),image:btn.getAttribute('data-image')||'',qty:1});btn.classList.add('ring-2','ring-accent');setTimeout(()=>btn.classList.remove('ring-2','ring-accent'),400);});
+      // Add-to-cart handled globally by shared cart-utils
       if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',updateBadges);}else{updateBadges();}
     })();
 </script>
@@ -1105,5 +1105,6 @@
     });
 </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+<div th:replace="fragments/cart-utils :: cartScripts"></div>
 </body>
 </html>

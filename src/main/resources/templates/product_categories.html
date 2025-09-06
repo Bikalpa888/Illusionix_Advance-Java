@@ -207,6 +207,7 @@
 </section>
 <script>
     (function(){
+      if(window.__cartUtilsLoaded){ return; }
       const KEY='illusionix_cart';
       function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{"items":[]}');}catch(_){return {items:[]};}}
       function write(c){try{localStorage.setItem(KEY, JSON.stringify(c));}catch(_){}}
@@ -218,23 +219,29 @@
           get(){return read();},clear(){write({items:[]});updateBadges();}
         };
       }
-      document.addEventListener('click',function(e){const btn=e.target.closest('[data-add-to-cart]');if(!btn)return;Cart.add({id:btn.getAttribute('data-id'),name:btn.getAttribute('data-name'),price:Number(btn.getAttribute('data-price')||0),image:btn.getAttribute('data-image')||'',qty:1});btn.classList.add('ring-2','ring-accent');setTimeout(()=>btn.classList.remove('ring-2','ring-accent'),400);});
+      document.addEventListener('click',async function(e){
+        let btn=e.target.closest('[data-add-to-cart]');
+        // Fallback: capture static demo buttons that miss data-attrs but contain text "Add to Cart"
+        if(!btn){ const b=e.target.closest('button'); if(b && /add\s*to\s*cart/i.test(b.textContent||'')) btn=b; }
+        if(!btn) return;
+        // Stop any navigation from card wrappers/links
+        e.preventDefault(); e.stopPropagation();
+        const card=btn.closest('.card');
+        const name=(btn.getAttribute('data-name')||card?.querySelector('h3')?.textContent||'Product').trim();
+        const id=(btn.getAttribute('data-id')||name.toLowerCase().replace(/[^a-z0-9]+/g,'-')).trim();
+        const priceTxt=(btn.getAttribute('data-price')||card?.querySelector('.text-xl.font-bold')?.textContent||'0').replace(/[^0-9.]/g,'');
+        const price=Number(priceTxt||0);
+        const image=(btn.getAttribute('data-image')||card?.querySelector('img')?.getAttribute('src')||'');
+        Cart.add({id,name,price,image,qty:1});
+        // Best-effort: sync to server session cart
+        try{ await fetch('/cart/add',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({sku:String(id),qty:'1',name:String(name),price:String(price||0),image:String(image||'')})}); }catch(_){ }
+        btn.classList.add('ring-2','ring-accent'); setTimeout(()=>btn.classList.remove('ring-2','ring-accent'),400);
+      });
       if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',updateBadges);}else{updateBadges();}
     })();
 </script>
-<script>
-  // Sync DB cart on add-to-cart
-  document.addEventListener('click', async function(e){
-    const btn = e.target.closest('[data-add-to-cart]');
-    if(!btn) return;
-    const sku = String(btn.getAttribute('data-id')||'');
-    const name = btn.getAttribute('data-name')||'';
-    const price = String(btn.getAttribute('data-price')||'');
-    const image = btn.getAttribute('data-image')||'';
-    try{ await fetch('/cart/add',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({sku,qty:'1',name,price,image})}); }catch(_){ }
-  });
-</script>
--->
+<div th:replace="fragments/cart-utils :: cartScripts"></div>
+<!--
 
 <!-- Main Content Area -->
 <section class="py-8">

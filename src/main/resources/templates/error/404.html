@@ -49,5 +49,6 @@
     <p class="text-xs text-text-secondary mt-4" th:if="${traceId}">Trace ID: <span th:text="${traceId}">abc123</span></p>
   </div>
   </main>
+<div th:replace="fragments/cart-utils :: cartScripts"></div>
 </body>
 </html>

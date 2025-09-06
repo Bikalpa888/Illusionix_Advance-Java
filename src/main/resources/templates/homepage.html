@@ -823,11 +823,12 @@
         </div>
     </div>
 </footer>
+<div th:replace="fragments/cart-utils :: cartScripts"></div>
 
 <!-- Enhanced JavaScript Functionality -->
 <script>
-    // Global variables
-    let cart = JSON.parse(localStorage.getItem('vrCart')) || [];
+    // Global variables (cart handled by shared fragment)
+    let cart = [];
     let wishlist = JSON.parse(localStorage.getItem('vrWishlist')) || [];
     let comparisonList = [];
     let rotationAngle = 0;
@@ -1035,15 +1036,26 @@
 
     // Cart functionality
     function updateCartCount() {
-        const cartCount = document.getElementById('cart-count');
-        if (cartCount) {
-            cartCount.textContent = cart.length;
-        }
+        let n = 0;
+        try { const cur = JSON.parse(localStorage.getItem('illusionix_cart')||'{"items":[]}'); n = (cur.items||[]).reduce((s,i)=> s + Number(i.qty||i.quantity||1), 0); } catch(_) { n = 0; }
+        document.querySelectorAll('#cart-count,[data-cart-count]').forEach(el=> el.textContent = String(n));
     }
 
     function addToCart(product) {
-        cart.push(product);
-        localStorage.setItem('vrCart', JSON.stringify(cart));
+        if (window.Cart && typeof window.Cart.add === 'function') {
+            window.Cart.add({ id: String(product.id||product.sku||product.productSku||product.name), name: product.name||String(product.id||'Item'), price: Number(product.price||0), image: product.image||'', qty: 1 });
+        } else {
+            // Fallback to unified storage
+            try{
+                const KEY='illusionix_cart';
+                const cur = JSON.parse(localStorage.getItem(KEY)||'{"items":[]}');
+                const id = String(product.id||product.sku||product.productSku||product.name);
+                const ex = (cur.items||[]).find(it=> String(it.id)===id);
+                if(ex){ ex.qty = Number(ex.qty||ex.quantity||1) + 1; }
+                else { (cur.items = cur.items || []).push({ id, name: product.name||id, price: Number(product.price||0), image: product.image||'', qty: 1 }); }
+                localStorage.setItem(KEY, JSON.stringify(cur));
+            }catch(_){ }
+        }
         updateCartCount();
         showNotification('Product added to cart!', 'success');
     }
@@ -1069,15 +1081,8 @@
         updateWishlistCount();
     }
 
-    // Add event listeners for cart and wishlist
+    // Add event listeners for wishlist only (cart handled globally in shared fragment)
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('add-to-cart') || e.target.closest('.add-to-cart')) {
-            e.preventDefault();
-            const button = e.target.classList.contains('add-to-cart') ? e.target : e.target.closest('.add-to-cart');
-            const productData = JSON.parse(button.dataset.product);
-            addToCart(productData);
-        }
-
         if (e.target.classList.contains('wishlist-btn') || e.target.closest('.wishlist-btn')) {
             e.preventDefault();
             const button = e.target.classList.contains('wishlist-btn') ? e.target : e.target.closest('.wishlist-btn');
@@ -1238,18 +1243,7 @@
         }, 5000);
     }
 </script>
-<script>
-  // Sync DB cart on add-to-cart (if buttons exist on homepage)
-  document.addEventListener('click', async function(e){
-    const btn = e.target.closest('[data-add-to-cart]');
-    if(!btn) return;
-    const sku = String(btn.getAttribute('data-id')||'');
-    const name = btn.getAttribute('data-name')||'';
-    const price = String(btn.getAttribute('data-price')||'');
-    const image = btn.getAttribute('data-image')||'';
-    try{ await fetch('/cart/add',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({sku,qty:'1',name,price,image})}); }catch(_){ }
-  });
-</script>
+<!-- Cart add/sync handled by shared cart-utils fragment -->
 <script>
     // Inline Theme Manager (fallback)
     (function(){
@@ -1282,23 +1276,7 @@
       document.querySelectorAll('.btn-accent,.btn-secondary,button,a.btn').forEach(btn=>{ btn.classList.add('btn-ripple'); btn.addEventListener('click',function(e){const r=this.getBoundingClientRect(); const el=document.createElement('span'); const size=Math.max(r.width,r.height); el.className='ripple'; el.style.width=el.style.height=size+'px'; el.style.left=(e.clientX-r.left-size/2)+'px'; el.style.top=(e.clientY-r.top-size/2)+'px'; this.appendChild(el); setTimeout(()=>el.remove(),650);}); });
     })();
 </script>
-<script>
-    (function(){
-      const KEY='illusionix_cart';
-      function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{"items":[]}');}catch(_){return {items:[]};}}
-      function write(c){try{localStorage.setItem(KEY, JSON.stringify(c));}catch(_){}}
-      function total(){return read().items.reduce((s,it)=>s+(it.qty||0),0);}
-      function updateBadges(){document.querySelectorAll('#cart-count,[data-cart-count]').forEach(el=>el.textContent=String(total()));}
-      if(!('Cart' in window)){
-        window.Cart={
-          add({id,name,price,image,qty=1}){const c=read();const k=String(id);const ex=c.items.find(it=>String(it.id)===k);if(ex){ex.qty+=qty;}else{c.items.push({id:k,name,price:Number(price||0),image:image||'',qty});}write(c);updateBadges();return c;},
-          get(){return read();},clear(){write({items:[]});updateBadges();}
-        };
-      }
-      document.addEventListener('click',function(e){const btn=e.target.closest('[data-add-to-cart]');if(!btn)return;Cart.add({id:btn.getAttribute('data-id'),name:btn.getAttribute('data-name'),price:Number(btn.getAttribute('data-price')||0),image:btn.getAttribute('data-image')||'',qty:1});btn.classList.add('ring-2','ring-accent');setTimeout(()=>btn.classList.remove('ring-2','ring-accent'),400);});
-      if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',updateBadges);}else{updateBadges();}
-    })();
-</script>
+<!-- Legacy per-page cart script removed; using shared cart-utils fragment -->
 
 <style>
     .text-gradient {
